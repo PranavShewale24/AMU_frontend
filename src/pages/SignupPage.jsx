@@ -60,6 +60,7 @@ const SignupPage = () => {
             >
               <option value="farmer">{t.farmer}</option>
               <option value="veterinarian">{t.veterinarian}</option>
+              <option value="admin">Goverment</option>
             </select>
           </div>
 

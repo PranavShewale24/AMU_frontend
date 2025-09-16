@@ -19,6 +19,7 @@ import ChatPage from "./pages/chat";
 import ReportsPage from "./pages/reports";
 import AnalyticsPage from "./pages/analytics";
 import Clients  from "./pages/clients";
+import GovermentDashboard from "./pages/govermentdashboard";
 
 // Protected Layout
 const MainLayout = () => {
@@ -56,6 +57,7 @@ const App = () => {
             <Route path="chat" element={<ChatPage />} />
             <Route path="reports" element={<ReportsPage />} />
             <Route path="analytics" element={<AnalyticsPage />} />
+            <Route path="government-dashboard" element={<GovermentDashboard />} />
           </Route>
 
           {/* Fallback */}

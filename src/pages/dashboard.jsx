@@ -7,59 +7,68 @@ const AnimalDoseDashboard = () => {
     {
       id: 1,
       name: "Cow A1",
+      lastMedicineDate: "2025-09-17", // 2 days ago
+      waitingPeriod: 7, // 7 days waiting period for milk
       drugs: [
-        { id: 1, name: "Antibiotic", dose: "50ml", time: "morning", given: false, disease: "Infection" },
-        { id: 2, name: "Vitamin B12", dose: "25ml", time: "evening", given: false, disease: "Nutritional Deficiency" }
+        { id: 1, name: "Antibiotic", dose: "50ml", time: "morning", given: false, disease: "Infection", waitingDays: 7 },
+        { id: 2, name: "Vitamin B12", dose: "25ml", time: "evening", given: false, disease: "Nutritional Deficiency", waitingDays: 0 }
       ]
     },
     {
       id: 2,
       name: "Cow A2",
+     
+      lastMedicineDate: "2025-09-12", // 4 days ago
+      waitingPeriod: 5, // 5 days waiting period for milk
+      
       drugs: [
-        { id: 3, name: "Pain Relief - Meloxicam", dose: "30ml", time: "morning", given: false, disease: "Joint Pain" },
-        { id: 4, name: "Pain Relief - Aspirin", dose: "20ml", time: "afternoon", given: false, disease: "Joint Pain" },
-        { id: 5, name: "Anti-inflammatory", dose: "25ml", time: "evening", given: false, disease: "Joint Pain" },
-        { id: 6, name: "Iron Supplement", dose: "40ml", time: "afternoon", given: false, disease: "Anemia" }
+        { id: 3, name: "Pain Relief - Meloxicam", dose: "30ml", time: "morning", given: false, disease: "Joint Pain", waitingDays: 5 },
+        { id: 4, name: "Pain Relief - Aspirin", dose: "20ml", time: "afternoon", given: false, disease: "Joint Pain", waitingDays: 3 },
+        { id: 5, name: "Anti-inflammatory", dose: "25ml", time: "evening", given: false, disease: "Joint Pain", waitingDays: 4 },
+        { id: 6, name: "Iron Supplement", dose: "40ml", time: "afternoon", given: false, disease: "Anemia", waitingDays: 0 }
       ]
     },
+    
     {
       id: 3,
-      name: "Bull B1",
-      drugs: [
-        { id: 7, name: "Antibiotic - Penicillin", dose: "75ml", time: "morning", given: true, disease: "Bacterial Infection" },
-        { id: 8, name: "Antibiotic - Streptomycin", dose: "50ml", time: "afternoon", given: false, disease: "Bacterial Infection" },
-        { id: 9, name: "Calcium", dose: "60ml", time: "afternoon", given: false, disease: "Calcium Deficiency" },
-        { id: 10, name: "Multivitamin", dose: "35ml", time: "evening", given: false, disease: "General Health" }
-      ]
-    },
-    {
-      id: 4,
       name: "Cow A3",
+     
+      lastMedicineDate: "2025-09-10", // 6 days ago
+      waitingPeriod: 10, // 10 days waiting period for milk
+     
       drugs: [
-        { id: 11, name: "Deworming - Ivermectin", dose: "45ml", time: "morning", given: false, disease: "Parasitic Infection" },
-        { id: 12, name: "Deworming - Albendazole", dose: "30ml", time: "afternoon", given: false, disease: "Parasitic Infection" },
-        { id: 13, name: "Probiotic", dose: "20ml", time: "afternoon", given: false, disease: "Digestive Health" },
-        { id: 14, name: "Pain Relief - Ibuprofen", dose: "35ml", time: "morning", given: false, disease: "Muscle Pain" },
-        { id: 15, name: "Muscle Relaxant", dose: "25ml", time: "evening", given: false, disease: "Muscle Pain" }
+        { id: 11, name: "Deworming - Ivermectin", dose: "45ml", time: "morning", given: false, disease: "Parasitic Infection", waitingDays: 10 },
+        { id: 12, name: "Deworming - Albendazole", dose: "30ml", time: "afternoon", given: false, disease: "Parasitic Infection", waitingDays: 7 },
+        { id: 13, name: "Probiotic", dose: "20ml", time: "afternoon", given: false, disease: "Digestive Health", waitingDays: 0 },
+        { id: 14, name: "Pain Relief - Ibuprofen", dose: "35ml", time: "morning", given: false, disease: "Muscle Pain", waitingDays: 3 },
+        { id: 15, name: "Muscle Relaxant", dose: "25ml", time: "evening", given: false, disease: "Muscle Pain", waitingDays: 5 }
       ]
     },
     {
       id: 5,
       name: "Calf C1",
+      
+      lastMedicineDate: "2025-09-15", // 1 day ago
+      waitingPeriod: 14, // 14 days waiting period for meat (when grown)
+     
       drugs: [
-        { id: 16, name: "Growth Hormone", dose: "15ml", time: "evening", given: false, disease: "Growth Support" },
-        { id: 17, name: "Pain Relief - Acetaminophen", dose: "10ml", time: "morning", given: false, disease: "General Pain" },
-        { id: 18, name: "Anti-inflammatory - Cortisone", dose: "12ml", time: "afternoon", given: false, disease: "General Pain" }
+        { id: 16, name: "Growth Hormone", dose: "15ml", time: "evening", given: false, disease: "Growth Support", waitingDays: 14 },
+        { id: 17, name: "Pain Relief - Acetaminophen", dose: "10ml", time: "morning", given: false, disease: "General Pain", waitingDays: 2 },
+        { id: 18, name: "Anti-inflammatory - Cortisone", dose: "12ml", time: "afternoon", given: false, disease: "General Pain", waitingDays: 7 }
       ]
     },
     {
       id: 6,
       name: "Cow A4",
+     
+      lastMedicineDate: "2025-09-08", // 8 days ago
+      waitingPeriod: 7, // 7 days waiting period for milk
+      
       drugs: [
-        { id: 19, name: "Pain Relief - Tramadol", dose: "40ml", time: "morning", given: false, disease: "Chronic Pain" },
-        { id: 20, name: "Pain Relief - Morphine", dose: "15ml", time: "afternoon", given: false, disease: "Chronic Pain" },
-        { id: 21, name: "Nerve Blocker", dose: "20ml", time: "evening", given: false, disease: "Chronic Pain" },
-        { id: 22, name: "Physical Therapy Support", dose: "30ml", time: "morning", given: false, disease: "Chronic Pain" }
+        { id: 19, name: "Pain Relief - Tramadol", dose: "40ml", time: "morning", given: false, disease: "Chronic Pain", waitingDays: 7 },
+        { id: 20, name: "Pain Relief - Morphine", dose: "15ml", time: "afternoon", given: false, disease: "Chronic Pain", waitingDays: 10 },
+        { id: 21, name: "Nerve Blocker", dose: "20ml", time: "evening", given: false, disease: "Chronic Pain", waitingDays: 5 },
+        { id: 22, name: "Physical Therapy Support", dose: "30ml", time: "morning", given: false, disease: "Chronic Pain", waitingDays: 0 }
       ]
     }
   ]);
@@ -67,6 +76,25 @@ const AnimalDoseDashboard = () => {
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
   const [selectedAnimal, setSelectedAnimal] = useState(null);
   const [givenDoses, setGivenDoses] = useState(new Set());
+
+  // Calculate days remaining for product to be ready for sale
+  const calculateWaitingPeriod = (animal) => {
+    const today = new Date();
+    const lastMedicineDate = new Date(animal.lastMedicineDate);
+    const daysSinceLastMedicine = Math.floor((today - lastMedicineDate) / (1000 * 60 * 60 * 24));
+    
+    // Find the highest waiting period from all medicines given to this animal
+    const maxWaitingDays = Math.max(...animal.drugs.map(drug => drug.waitingDays || 0));
+    const effectiveWaitingPeriod = Math.max(animal.waitingPeriod, maxWaitingDays);
+    
+    const daysRemaining = effectiveWaitingPeriod - daysSinceLastMedicine;
+    return Math.max(0, daysRemaining);
+  };
+
+  // Get animals ready for sale
+  const getAnimalsReadyForSale = () => {
+    return animals.filter(animal => calculateWaitingPeriod(animal) === 0);
+  };
 
   // Calculate pending doses for each time slot
   const pendingCounts = useMemo(() => {
@@ -466,6 +494,51 @@ const AnimalDoseDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-6xl mx-auto">
+        {/* Animals Ready for Sale Notification */}
+        {(() => {
+          const readyAnimals = getAnimalsReadyForSale();
+          if (readyAnimals.length > 0) {
+            return (
+              <div className="mb-6 bg-gradient-to-r from-green-400 to-green-600 rounded-xl shadow-lg p-6 text-white animate-pulse">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="text-4xl">🎉</div>
+                    <div>
+                      <h2 className="text-2xl font-bold mb-1">
+                        Great News! Products Ready for Sale!
+                      </h2>
+                      <p className="text-green-100 text-lg">
+                        {readyAnimals.length} animal{readyAnimals.length > 1 ? 's have' : ' has'} completed the waiting period
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-3xl font-bold">{readyAnimals.length}</div>
+                    <div className="text-green-100">Ready to Sell</div>
+                  </div>
+                </div>
+                
+                <div className="mt-4 flex flex-wrap gap-3">
+                  {readyAnimals.map(animal => (
+                    <div key={animal.id} className="bg-white bg-opacity-20 rounded-lg px-4 py-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">
+                          {animal.type === 'dairy' ? '🥛' : animal.type === 'meat' ? '🥩' : '🐄'}
+                        </span>
+                        <div>
+                          <div className="font-semibold">{animal.name}</div>
+                          <div className="text-sm text-green-100">{animal.productType} Ready</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          }
+          return null;
+        })()}
+
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
@@ -712,6 +785,94 @@ const AnimalDoseDashboard = () => {
                         className="h-3 rounded-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-700 ease-out"
                         style={{ width: `${progressPercentage}%` }}
                       ></div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          
+          {/* Waiting Period Status */}
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <h3 className="text-xl font-bold text-gray-800 mb-6 text-center">
+              ⏰ Product Waiting Periods
+            </h3>
+            
+            <div className="grid gap-4">
+              {animals.map(animal => {
+                const daysRemaining = calculateWaitingPeriod(animal);
+                const isReady = daysRemaining === 0;
+                
+                return (
+                  <div 
+                    key={animal.id} 
+                    className={`p-4 rounded-lg border-2 transition-all ${
+                      isReady 
+                        ? 'border-green-400 bg-green-50 shadow-lg' 
+                        : daysRemaining <= 2 
+                          ? 'border-yellow-400 bg-yellow-50' 
+                          : 'border-gray-200 bg-white'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`text-3xl ${isReady ? 'animate-bounce' : ''}`}>
+                          {animal.type === 'dairy' ? '🐄' : animal.type === 'meat' ? '🐂' : '🐮'}
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-bold text-gray-800">{animal.name}</h4>
+                         
+                          <p className="text-xs text-gray-500">
+                            Last medicine: {new Date(animal.lastMedicineDate).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="text-right">
+                        {isReady ? (
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-green-600 flex items-center gap-2">
+                              ✅ Ready to Sell!
+                            </div>
+                            
+                          </div>
+                        ) : (
+                          <div className="text-center">
+                            <div className={`text-2xl font-bold ${
+                              daysRemaining <= 2 ? 'text-yellow-600' : 'text-gray-600'
+                            }`}>
+                              {daysRemaining} day{daysRemaining !== 1 ? 's' : ''}
+                            </div>
+                            <div className={`text-sm font-medium ${
+                              daysRemaining <= 2 ? 'text-yellow-700' : 'text-gray-600'
+                            }`}>
+                              {daysRemaining <= 2 ? 'Almost ready!' : 'remaining'}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Progress bar for waiting period */}
+                    <div className="mt-3">
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full transition-all duration-500 ${
+                            isReady 
+                              ? 'bg-green-500' 
+                              : daysRemaining <= 2 
+                                ? 'bg-yellow-500' 
+                                : 'bg-blue-500'
+                          }`}
+                          style={{ 
+                            width: `${Math.max(10, ((Math.max(animal.waitingPeriod, Math.max(...animal.drugs.map(drug => drug.waitingDays || 0))) - daysRemaining) / Math.max(animal.waitingPeriod, Math.max(...animal.drugs.map(drug => drug.waitingDays || 0)))) * 100)}%` 
+                          }}
+                        ></div>
+                      </div>
+                      <div className="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>Medicine given</span>
+                        <span>Ready for sale</span>
+                      </div>
                     </div>
                   </div>
                 );

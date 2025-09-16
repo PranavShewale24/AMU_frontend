@@ -7,6 +7,7 @@ const translations = {
     login: 'Login',
     signup: 'Sign Up',
     farmer: 'Farmer',
+    government: 'Government',
     veterinarian: 'Veterinarian',
     dashboard: 'Dashboard',
     animals: 'Animals',
@@ -49,9 +50,11 @@ const translations = {
     login: 'लॉग इन',
     signup: 'साइन अप',
     farmer: 'किसान',
+    government: 'सरकार',
     veterinarian: 'पशु चिकित्सक',
     dashboard: 'डैशबोर्ड',
     animals: 'पशु',
+    clients: 'ग्राहक',
     treatments: 'उपचार',
     chat: 'चैट',
     reports: 'रिपोर्ट',
@@ -63,9 +66,11 @@ const translations = {
     login: 'लॉगिन',
     signup: 'साइन अप',
     farmer: 'शेतकरी',
+    government: 'सरकार',
     veterinarian: 'पशुवैद्य',
     dashboard: 'डॅशबोर्ड',
     animals: 'जनावरे',
+    clients: 'ग्राहक',
     treatments: 'उपचार',
     chat: 'चॅट',
     reports: 'अहवाल',
@@ -159,8 +164,8 @@ export const AppProvider = ({ children }) => {
   const [animals, setAnimals] = useState(mockAnimals);
   const [treatments, setTreatments] = useState(mockTreatments);
   const [notifications, setNotifications] = useState([
-    { id: 1, message: 'Cow001 waiting period ends in 3 days', type: 'warning' },
-    { id: 2, message: 'Buffalo002 is ready for sale', type: 'success' }
+    { id: 1, message: 'COW001 waiting period ends in 3 days', type: 'warning' },
+    { id: 2, message: 'BUF002 is ready for sale', type: 'success' }
   ]);
   const [chatMessages, setChatMessages] = useState([
     { id: 1, sender: 'Dr. Sharma', message: 'How is Bella doing today?', timestamp: '10:30 AM' },

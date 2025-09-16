@@ -18,19 +18,32 @@ const Login = () => {
   };
 
   const handleLogin = () => {
-    if (password === '1234') {
-      setCurrentUser({ 
-        phone: phoneNumber, 
-        role: phoneNumber.startsWith('9800') ? 'farmer' : 'veterinarian', 
-        name: phoneNumber.startsWith('9800') ? 'Ram Kumar' : 'Dr. Sharma' 
-      });
+  if (password === "1234") {
+    let role = "veterinarian";
+    let name = "Dr. Sharma";
+
+    if (phoneNumber.startsWith("9800")) {
+      role = "farmer";
+      name = "Ram Kumar";
+    } else if (phoneNumber.startsWith("7083")) {
+      role = "government";
+      name = "Gov. Officer";
     }
-    if(phoneNumber.startsWith('9800')){
-      navigate('/dashboard');
-    }else {
-      navigate('/treatments');
+
+    // ✅ Set user with correct role
+    setCurrentUser({ phone: phoneNumber, role, name });
+
+    // ✅ Navigate based on role
+    if (role === "farmer") {
+      navigate("/dashboard");
+    } else if (role === "veterinarian") {
+      navigate("/treatments");
+    } else if (role === "government") {
+      navigate("/government-dashboard");
     }
-  };
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
