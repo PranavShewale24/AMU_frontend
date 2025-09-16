@@ -1,376 +1,727 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
+import { Clock, Pill, Check, ArrowLeft, Eye, Undo } from 'lucide-react';
 
-import { 
-  Stethoscope, 
-  Clock, 
-  CheckCircle, 
-  FileText, 
-  AlertTriangle,
-  TrendingUp,
-  Activity,
-  Calendar
-} from 'lucide-react';
-
-// Mock data for dashboard
-const mockAnimals = [
-  {
-    id: 'COW001',
-    type: 'Cow',
-    name: 'Bella',
-    farmer: 'Ram Kumar',
-    drug: 'Amoxicillin',
-    dose: '500mg',
-    waitingPeriod: 7,
-    daysLeft: 3,
-    treatedBy: 'Dr. Sharma',
-    treatedDate: '2024-08-25'
-  },
-  {
-    id: 'BUF002',
-    type: 'Buffalo',
-    name: 'Moti',
-    farmer: 'Suresh Patil',
-    drug: 'Oxytetracycline',
-    dose: '200ml',
-    waitingPeriod: 14,
-    daysLeft: 0,
-    treatedBy: 'Dr. Verma',
-    treatedDate: '2024-08-15'
-  },
-  {
-    id: 'CHK003',
-    type: 'Chicken',
-    name: 'Fluffy',
-    farmer: 'Ram Kumar',
-    drug: 'Enrofloxacin',
-    dose: '10mg',
-    waitingPeriod: 5,
-    daysLeft: 2,
-    treatedBy: 'Dr. Sharma',
-    treatedDate: '2024-08-27'
-  }
-];
-
-const mockTreatments = [
-  {
-    id: 1,
-    animalId: 'COW001',
-    animalType: 'Cow',
-    drug: 'Amoxicillin',
-    dose: '500mg',
-    waitingPeriod: 7,
-    date: '2024-08-25',
-    vet: 'Dr. Sharma',
-    farmer: 'Ram Kumar'
-  },
-  {
-    id: 2,
-    animalId: 'BUF002',
-    animalType: 'Buffalo',
-    drug: 'Oxytetracycline',
-    dose: '200ml',
-    waitingPeriod: 14,
-    date: '2024-08-15',
-    vet: 'Dr. Verma',
-    farmer: 'Suresh Patil'
-  }
-];
-
-// Dashboard Component for Farmers and Veterinarians
-const Dashboard = ({ currentUser, language = 'en' }) => {
-  const animals = mockAnimals;
-  const treatments = mockTreatments;
-
-  // Calculate statistics
-  const waitingAnimals = animals.filter(a => a.daysLeft > 0).length;
-  const readyAnimals = animals.filter(a => a.daysLeft === 0).length;
-  const urgentAnimals = animals.filter(a => a.daysLeft <= 3 && a.daysLeft > 0).length;
-
-  // Language translations
-  const translations = {
-    en: {
-      dashboard: 'Dashboard',
-      welcome: 'Welcome back',
-      totalAnimals: 'Total Animals',
-      waitingPeriodActive: 'Waiting Period Active',
-      readyToSell: 'Ready to Sell',
-      totalTreatments: 'Total Treatments',
-      recentAnimals: 'Recent Animals',
-      notifications: 'Notifications',
-      urgentAlerts: 'Urgent Alerts',
-      daysLeft: 'days left',
-      ready: 'Ready',
-      viewAll: 'View All',
-      noAnimals: 'No animals found',
-      noNotifications: 'No new notifications'
+const AnimalDoseDashboard = () => {
+  // Sample data - in real app this would come from API
+  const [animals] = useState([
+    {
+      id: 1,
+      name: "Cow A1",
+      drugs: [
+        { id: 1, name: "Antibiotic", dose: "50ml", time: "morning", given: false, disease: "Infection" },
+        { id: 2, name: "Vitamin B12", dose: "25ml", time: "evening", given: false, disease: "Nutritional Deficiency" }
+      ]
     },
-    hi: {
-      dashboard: 'डैशबोर्ड',
-      welcome: 'वापस आपका स्वागत है',
-      totalAnimals: 'कुल पशु',
-      waitingPeriodActive: 'प्रतीक्षा अवधि सक्रिय',
-      readyToSell: 'बेचने के लिए तैयार',
-      totalTreatments: 'कुल उपचार'
+    {
+      id: 2,
+      name: "Cow A2",
+      drugs: [
+        { id: 3, name: "Pain Relief - Meloxicam", dose: "30ml", time: "morning", given: false, disease: "Joint Pain" },
+        { id: 4, name: "Pain Relief - Aspirin", dose: "20ml", time: "afternoon", given: false, disease: "Joint Pain" },
+        { id: 5, name: "Anti-inflammatory", dose: "25ml", time: "evening", given: false, disease: "Joint Pain" },
+        { id: 6, name: "Iron Supplement", dose: "40ml", time: "afternoon", given: false, disease: "Anemia" }
+      ]
     },
-    mr: {
-      dashboard: 'डॅशबोर्ड',
-      welcome: 'परत आपले स्वागत',
-      totalAnimals: 'एकूण जनावरे',
-      waitingPeriodActive: 'प्रतीक्षा कालावधी सक्रिय',
-      readyToSell: 'विक्रीसाठी तयार',
-      totalTreatments: 'एकूण उपचार'
+    {
+      id: 3,
+      name: "Bull B1",
+      drugs: [
+        { id: 7, name: "Antibiotic - Penicillin", dose: "75ml", time: "morning", given: true, disease: "Bacterial Infection" },
+        { id: 8, name: "Antibiotic - Streptomycin", dose: "50ml", time: "afternoon", given: false, disease: "Bacterial Infection" },
+        { id: 9, name: "Calcium", dose: "60ml", time: "afternoon", given: false, disease: "Calcium Deficiency" },
+        { id: 10, name: "Multivitamin", dose: "35ml", time: "evening", given: false, disease: "General Health" }
+      ]
+    },
+    {
+      id: 4,
+      name: "Cow A3",
+      drugs: [
+        { id: 11, name: "Deworming - Ivermectin", dose: "45ml", time: "morning", given: false, disease: "Parasitic Infection" },
+        { id: 12, name: "Deworming - Albendazole", dose: "30ml", time: "afternoon", given: false, disease: "Parasitic Infection" },
+        { id: 13, name: "Probiotic", dose: "20ml", time: "afternoon", given: false, disease: "Digestive Health" },
+        { id: 14, name: "Pain Relief - Ibuprofen", dose: "35ml", time: "morning", given: false, disease: "Muscle Pain" },
+        { id: 15, name: "Muscle Relaxant", dose: "25ml", time: "evening", given: false, disease: "Muscle Pain" }
+      ]
+    },
+    {
+      id: 5,
+      name: "Calf C1",
+      drugs: [
+        { id: 16, name: "Growth Hormone", dose: "15ml", time: "evening", given: false, disease: "Growth Support" },
+        { id: 17, name: "Pain Relief - Acetaminophen", dose: "10ml", time: "morning", given: false, disease: "General Pain" },
+        { id: 18, name: "Anti-inflammatory - Cortisone", dose: "12ml", time: "afternoon", given: false, disease: "General Pain" }
+      ]
+    },
+    {
+      id: 6,
+      name: "Cow A4",
+      drugs: [
+        { id: 19, name: "Pain Relief - Tramadol", dose: "40ml", time: "morning", given: false, disease: "Chronic Pain" },
+        { id: 20, name: "Pain Relief - Morphine", dose: "15ml", time: "afternoon", given: false, disease: "Chronic Pain" },
+        { id: 21, name: "Nerve Blocker", dose: "20ml", time: "evening", given: false, disease: "Chronic Pain" },
+        { id: 22, name: "Physical Therapy Support", dose: "30ml", time: "morning", given: false, disease: "Chronic Pain" }
+      ]
     }
+  ]);
+
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
+  const [selectedAnimal, setSelectedAnimal] = useState(null);
+  const [givenDoses, setGivenDoses] = useState(new Set());
+
+  // Calculate pending doses for each time slot
+  const pendingCounts = useMemo(() => {
+    const counts = { morning: 0, afternoon: 0, evening: 0 };
+    
+    animals.forEach(animal => {
+      animal.drugs.forEach(drug => {
+        if (!drug.given && !givenDoses.has(drug.id)) {
+          counts[drug.time]++;
+        }
+      });
+    });
+    
+    return counts;
+  }, [animals, givenDoses]);
+
+  // Get animals with pending doses for selected time slot
+  const getAnimalsForTimeSlot = (timeSlot) => {
+    return animals.filter(animal => 
+      animal.drugs.some(drug => 
+        drug.time === timeSlot && !drug.given && !givenDoses.has(drug.id)
+      )
+    ).map(animal => ({
+      ...animal,
+      drugs: animal.drugs.filter(drug => 
+        drug.time === timeSlot && !drug.given && !givenDoses.has(drug.id)
+      )
+    }));
   };
 
-  const t = translations[language];
+  // Handle dose completion
+  const handleDoseGiven = (drugId) => {
+    setGivenDoses(prev => new Set([...prev, drugId]));
+  };
 
-  // Stat Card Component
-  const StatCard = ({ title, value, icon: Icon, color, subtext }) => (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-          <p className={`text-3xl font-bold ${color}`}>{value}</p>
-          {subtext && <p className="text-xs text-gray-500 mt-1">{subtext}</p>}
-        </div>
-        <div className={`p-3 rounded-lg ${color.replace('text-', 'bg-').replace('-600', '-100')}`}>
-          <Icon className={`w-8 h-8 ${color}`} />
-        </div>
-      </div>
-    </div>
-  );
+  // Handle undo dose
+  const handleUndoDose = (drugId) => {
+    setGivenDoses(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(drugId);
+      return newSet;
+    });
+  };
 
-  // Animal Card Component
-  const AnimalCard = ({ animal }) => (
-    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
-      <div className="flex items-center space-x-3">
-        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-          animal.type === 'Cow' ? 'bg-brown-100' : 
-          animal.type === 'Buffalo' ? 'bg-gray-100' :
-          animal.type === 'Chicken' ? 'bg-yellow-100' : 'bg-green-100'
-        }`}>
-          <Stethoscope className="w-5 h-5 text-gray-600" />
-        </div>
-        <div>
-          <p className="font-medium text-gray-900">{animal.name} ({animal.type})</p>
-          <p className="text-sm text-gray-600">ID: {animal.id}</p>
-          <p className="text-xs text-gray-500">Treated by: {animal.treatedBy}</p>
-        </div>
-      </div>
-      <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-        animal.daysLeft > 0 
-          ? animal.daysLeft <= 3 
-            ? 'bg-red-100 text-red-800' 
-            : 'bg-yellow-100 text-yellow-800'
-          : 'bg-green-100 text-green-800'
-      }`}>
-        {animal.daysLeft > 0 ? (
-          <><Clock className="w-3 h-3 inline mr-1" /> {animal.daysLeft} {t.daysLeft}</>
-        ) : (
-          <><CheckCircle className="w-3 h-3 inline mr-1" /> {t.ready}</>
-        )}
-      </div>
-    </div>
-  );
+  // Time slot data
+  const timeSlots = [
+    {
+      id: 'morning',
+      name: 'Morning',
+      icon: '🌅',
+      bgColor: 'bg-orange-100',
+      borderColor: 'border-orange-300',
+      textColor: 'text-orange-800'
+    },
+    {
+      id: 'afternoon',
+      name: 'Afternoon',
+      icon: '☀️',
+      bgColor: 'bg-yellow-100',
+      borderColor: 'border-yellow-300',
+      textColor: 'text-yellow-800'
+    },
+    {
+      id: 'evening',
+      name: 'Evening',
+      icon: '🌙',
+      bgColor: 'bg-blue-100',
+      borderColor: 'border-blue-300',
+      textColor: 'text-blue-800'
+    }
+  ];
 
-  // Notification Card Component
-  const NotificationCard = ({ type, message, time }) => (
-    <div className={`p-4 rounded-lg border ${
-      type === 'warning' 
-        ? 'bg-yellow-50 border-yellow-200' 
-        : type === 'success'
-        ? 'bg-green-50 border-green-200'
-        : 'bg-blue-50 border-blue-200'
-    }`}>
-      <div className="flex items-start space-x-3">
-        <div className={`mt-0.5 ${
-          type === 'warning' 
-            ? 'text-yellow-600' 
-            : type === 'success'
-            ? 'text-green-600'
-            : 'text-blue-600'
-        }`}>
-          {type === 'warning' ? (
-            <AlertTriangle className="w-4 h-4" />
-          ) : type === 'success' ? (
-            <CheckCircle className="w-4 h-4" />
-          ) : (
-            <Activity className="w-4 h-4" />
-          )}
-        </div>
-        <div className="flex-1">
-          <p className={`text-sm font-medium ${
-            type === 'warning' 
-              ? 'text-yellow-800' 
-              : type === 'success'
-              ? 'text-green-800'
-              : 'text-blue-800'
-          }`}>
-            {message}
-          </p>
-          {time && <p className="text-xs text-gray-500 mt-1">{time}</p>}
-        </div>
-      </div>
-    </div>
-  );
+  // Animal Detail View
+  if (selectedAnimal) {
+    const animal = animals.find(a => a.id === selectedAnimal.id);
+    const selectedSlot = timeSlots.find(slot => slot.id === selectedTimeSlot);
+    const relevantDrugs = animal.drugs.filter(drug => drug.time === selectedTimeSlot);
 
-  return (
-    <div className="p-6">
-      {/* Welcome Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{t.dashboard}</h1>
-        <p className="text-gray-600">
-          {t.welcome}, {currentUser?.name}! Here's your overview for today.
-        </p>
-      </div>
-
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatCard
-          title={t.totalAnimals}
-          value={animals.length}
-          icon={Stethoscope}
-          color="text-blue-600"
-          subtext="Total animals under care"
-        />
-        
-        <StatCard
-          title={t.waitingPeriodActive}
-          value={waitingAnimals}
-          icon={Clock}
-          color="text-red-600"
-          subtext={urgentAnimals > 0 ? `${urgentAnimals} urgent` : 'None urgent'}
-        />
-        
-        <StatCard
-          title={t.readyToSell}
-          value={readyAnimals}
-          icon={CheckCircle}
-          color="text-green-600"
-          subtext="Safe for consumption"
-        />
-        
-        <StatCard
-          title={t.totalTreatments}
-          value={treatments.length}
-          icon={FileText}
-          color="text-purple-600"
-          subtext="This month"
-        />
-      </div>
-
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
-        {/* Recent Animals */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-800">{t.recentAnimals}</h3>
-            <button className="text-green-600 hover:text-green-800 text-sm font-medium">
-              {t.viewAll}
-            </button>
+    return (
+      <div className="min-h-screen bg-gray-50 p-4">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setSelectedAnimal(null)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-green-600 font-bold text-lg">
+                    {animal.name.charAt(0)}
+                  </span>
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-800">
+                    {animal.name} - Treatment Details
+                  </h1>
+                  <p className="text-gray-600">
+                    {selectedSlot.name} doses ({relevantDrugs.length} treatments)
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-          
+
+          {/* Treatment Details */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-6">
+              Treatment Schedule for {selectedSlot.name}
+            </h2>
+            
+            <div className="space-y-4">
+              {relevantDrugs.map(drug => {
+                const isGiven = drug.given || givenDoses.has(drug.id);
+                
+                return (
+                  <div
+                    key={drug.id}
+                    className={`p-6 border-2 rounded-lg transition-all duration-300 ${
+                      isGiven 
+                        ? 'border-green-300 bg-green-50' 
+                        : 'border-gray-200 bg-white'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className={`p-3 rounded-full ${
+                          isGiven ? 'bg-green-200' : 'bg-blue-100'
+                        }`}>
+                          <Pill className={`w-6 h-6 ${
+                            isGiven ? 'text-green-600' : 'text-blue-500'
+                          }`} />
+                        </div>
+                        
+                        <div>
+                          <h3 className={`text-lg font-semibold ${
+                            isGiven ? 'text-green-800' : 'text-gray-800'
+                          }`}>
+                            {drug.name}
+                          </h3>
+                          <div className="space-y-1">
+                            <p className={`text-sm ${
+                              isGiven ? 'text-green-600' : 'text-gray-600'
+                            }`}>
+                              <span className="font-medium">Disease:</span> {drug.disease}
+                            </p>
+                            <p className={`text-sm ${
+                              isGiven ? 'text-green-600' : 'text-gray-600'
+                            }`}>
+                              <span className="font-medium">Dosage:</span> {drug.dose}
+                            </p>
+                            <p className={`text-sm ${
+                              isGiven ? 'text-green-600' : 'text-gray-600'
+                            }`}>
+                              <span className="font-medium">Time:</span> {drug.time}
+                            </p>
+                            <p className={`text-sm font-medium ${
+                              isGiven ? 'text-green-600' : 'text-orange-600'
+                            }`}>
+                              Status: {isGiven ? '✅ Given' : '⏳ Pending'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        {isGiven ? (
+                          <button
+                            onClick={() => handleUndoDose(drug.id)}
+                            className="flex items-center gap-2 px-4 py-2 bg-orange-100 text-orange-700 border border-orange-300 rounded-lg hover:bg-orange-200 transition-colors"
+                          >
+                            <Undo className="w-4 h-4" />
+                            <span className="font-medium">Undo</span>
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleDoseGiven(drug.id)}
+                            className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 border border-green-300 rounded-lg hover:bg-green-200 transition-colors"
+                          >
+                            <Check className="w-4 h-4" />
+                            <span className="font-medium">Mark as Given</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Summary for this animal - Farmer Friendly */}
+            <div className="mt-6 p-6 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border border-blue-200">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl">📊</span>
+                <h3 className="font-bold text-gray-800 text-lg">{animal.name}'s Medicine Progress</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Progress Circle for this animal */}
+                <div className="flex items-center justify-center">
+                  <div className="relative">
+                    <svg width="120" height="120" className="transform -rotate-90">
+                      <circle
+                        cx="60"
+                        cy="60"
+                        r="45"
+                        stroke="#e5e7eb"
+                        strokeWidth="10"
+                        fill="none"
+                      />
+                      <circle
+                        cx="60"
+                        cy="60"
+                        r="45"
+                        stroke="#10b981"
+                        strokeWidth="10"
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeDasharray={`${2 * Math.PI * 45}`}
+                        strokeDashoffset={`${2 * Math.PI * 45 * (1 - (relevantDrugs.filter(drug => drug.given || givenDoses.has(drug.id)).length / relevantDrugs.length))}`}
+                        className="transition-all duration-700 ease-out"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="text-2xl font-bold text-green-600">
+                        {Math.round((relevantDrugs.filter(drug => drug.given || givenDoses.has(drug.id)).length / relevantDrugs.length) * 100)}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Stats */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">💊</span>
+                      <span className="text-gray-700 font-medium">Total medicines:</span>
+                    </div>
+                    <span className="text-xl font-bold text-blue-600">{relevantDrugs.length}</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">✅</span>
+                      <span className="text-gray-700 font-medium">Given:</span>
+                    </div>
+                    <span className="text-xl font-bold text-green-600">
+                      {relevantDrugs.filter(drug => drug.given || givenDoses.has(drug.id)).length}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">⏳</span>
+                      <span className="text-gray-700 font-medium">Still needed:</span>
+                    </div>
+                    <span className="text-xl font-bold text-orange-600">
+                      {relevantDrugs.filter(drug => !drug.given && !givenDoses.has(drug.id)).length}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Encouraging Message */}
+              <div className="mt-4 text-center">
+                {(() => {
+                  const completed = relevantDrugs.filter(drug => drug.given || givenDoses.has(drug.id)).length;
+                  const total = relevantDrugs.length;
+                  
+                  if (completed === total) {
+                    return (
+                      <div className="bg-green-100 border border-green-300 rounded-lg p-3">
+                        <span className="text-green-800 font-medium">
+                          🎉 {animal.name} is all set for {selectedSlot.name.toLowerCase()}!
+                        </span>
+                      </div>
+                    );
+                  } else {
+                    return (
+                      <div className="bg-blue-100 border border-blue-300 rounded-lg p-3">
+                        <span className="text-blue-800 font-medium">
+                          💪 Keep going! {animal.name} needs {total - completed} more medicine{total - completed > 1 ? 's' : ''}.
+                        </span>
+                      </div>
+                    );
+                  }
+                })()}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Time Slot Animal List View
+  if (selectedTimeSlot) {
+    const animalsForTimeSlot = getAnimalsForTimeSlot(selectedTimeSlot);
+    const selectedSlot = timeSlots.find(slot => slot.id === selectedTimeSlot);
+
+    return (
+      <div className="min-h-screen bg-gray-50 p-4">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setSelectedTimeSlot(null)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{selectedSlot.icon}</span>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-800">
+                    {selectedSlot.name} Doses
+                  </h1>
+                  <p className="text-gray-600">
+                    {animalsForTimeSlot.length} animals with pending doses
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Animal List */}
           <div className="space-y-4">
-            {animals.length > 0 ? (
-              animals.slice(0, 3).map((animal) => (
-                <AnimalCard key={animal.id} animal={animal} />
-              ))
+            {animalsForTimeSlot.length === 0 ? (
+              <div className="bg-white rounded-lg shadow-md p-8 text-center">
+                <Check className="w-16 h-16 text-green-500 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                  All Done! 🎉
+                </h3>
+                <p className="text-gray-600">
+                  No pending {selectedSlot.name.toLowerCase()} doses
+                </p>
+              </div>
             ) : (
-              <p className="text-gray-500 text-center py-4">{t.noAnimals}</p>
-            )}
-          </div>
-        </div>
+              animalsForTimeSlot.map(animal => (
+                <div key={animal.id} className="bg-white rounded-lg shadow-md p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <span className="text-green-600 font-semibold">
+                          {animal.name.charAt(0)}
+                        </span>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-800">
+                          {animal.name}
+                        </h3>
+                        <p className="text-gray-600">
+                          {animal.drugs.length} dose{animal.drugs.length > 1 ? 's' : ''} pending
+                        </p>
+                      </div>
+                    </div>
 
-        {/* Notifications & Alerts */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-800">{t.notifications}</h3>
-            <span className="text-sm text-gray-500">Today</span>
-          </div>
-          
-          <div className="space-y-4">
-            {urgentAnimals > 0 && (
-              <NotificationCard
-                type="warning"
-                message={`${urgentAnimals} animal(s) have waiting periods ending soon`}
-                time="2 hours ago"
-              />
-            )}
-            
-            {readyAnimals > 0 && (
-              <NotificationCard
-                type="success"
-                message={`${readyAnimals} animal(s) are ready for sale`}
-                time="5 hours ago"
-              />
-            )}
-            
-            {currentUser?.role === 'veterinarian' && (
-              <NotificationCard
-                type="info"
-                message="New treatment request from Ram Kumar"
-                time="1 day ago"
-              />
-            )}
-            
-            {urgentAnimals === 0 && readyAnimals === 0 && (
-              <p className="text-gray-500 text-center py-4">{t.noNotifications}</p>
+                    <button
+                      onClick={() => setSelectedAnimal(animal)}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 border border-blue-300 rounded-lg hover:bg-blue-200 transition-colors"
+                    >
+                      <Eye className="w-4 h-4" />
+                      <span className="font-medium">View Treatments</span>
+                    </button>
+                  </div>
+
+                  {/* Quick preview of drugs */}
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <div className="flex flex-wrap gap-2">
+                      {animal.drugs.map(drug => (
+                        <div
+                          key={drug.id}
+                          className="flex items-center gap-1 px-3 py-1 bg-gray-100 rounded-full text-sm"
+                        >
+                          <Pill className="w-3 h-3 text-blue-500" />
+                          <span className="text-gray-700">{drug.name}</span>
+                          <span className="text-gray-500">({drug.dose})</span>
+                          <span className="text-xs text-blue-600 ml-1">• {drug.disease}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))
             )}
           </div>
         </div>
       </div>
+    );
+  }
 
-      {/* Quick Actions - Role Based */}
-      <div className="mt-8">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+  // Main Dashboard View
+  return (
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            Animal Medication Dashboard
+          </h1>
+          <p className="text-gray-600">
+            Track and manage daily medication doses for your animals
+          </p>
+        </div>
+
+        {/* Time Slot Cards */}
+        <div className="grid md:grid-cols-3 gap-6">
+          {timeSlots.map(slot => (
+            <div
+              key={slot.id}
+              onClick={() => setSelectedTimeSlot(slot.id)}
+              className={`${slot.bgColor} ${slot.borderColor} border-2 rounded-xl p-6 cursor-pointer transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl`}
+            >
+              <div className="text-center">
+                <div className="text-4xl mb-4">{slot.icon}</div>
+                
+                <h2 className={`text-2xl font-bold ${slot.textColor} mb-2`}>
+                  {slot.name}
+                </h2>
+                
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <Clock className={`w-5 h-5 ${slot.textColor}`} />
+                  <span className={`${slot.textColor} font-medium`}>
+                    {slot.id === 'morning' && '6:00 - 10:00 AM'}
+                    {slot.id === 'afternoon' && '12:00 - 4:00 PM'}
+                    {slot.id === 'evening' && '6:00 - 9:00 PM'}
+                  </span>
+                </div>
+
+                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${
+                  pendingCounts[slot.id] > 0 
+                    ? 'bg-red-100 border border-red-300' 
+                    : 'bg-green-100 border border-green-300'
+                }`}>
+                  <span className={`text-2xl font-bold ${
+                    pendingCounts[slot.id] > 0 ? 'text-red-600' : 'text-green-600'
+                  }`}>
+                    {pendingCounts[slot.id]}
+                  </span>
+                  <span className={`font-medium ${
+                    pendingCounts[slot.id] > 0 ? 'text-red-600' : 'text-green-600'
+                  }`}>
+                    {pendingCounts[slot.id] === 1 ? 'dose' : 'doses'} pending
+                  </span>
+                </div>
+
+                <div className={`mt-4 text-sm ${slot.textColor} opacity-75`}>
+                  Click to view animals
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Summary Stats with Graph - Farmer Friendly */}
+        <div className="mt-8 space-y-6">
+          {/* Progress Circle */}
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+              🏠 Today's Medicine Progress
+            </h3>
+            
+            <div className="flex flex-col lg:flex-row items-center gap-8">
+              {/* Circular Progress Chart */}
+              <div className="relative flex items-center justify-center">
+                <svg width="200" height="200" className="transform -rotate-90">
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="80"
+                    stroke="#e5e7eb"
+                    strokeWidth="16"
+                    fill="none"
+                  />
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="80"
+                    stroke="#10b981"
+                    strokeWidth="16"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeDasharray={`${2 * Math.PI * 80}`}
+                    strokeDashoffset={`${2 * Math.PI * 80 * (1 - (givenDoses.size / (givenDoses.size + pendingCounts.morning + pendingCounts.afternoon + pendingCounts.evening)))}`}
+                    className="transition-all duration-1000 ease-out"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-4xl font-bold text-green-600">
+                    {Math.round((givenDoses.size / (givenDoses.size + pendingCounts.morning + pendingCounts.afternoon + pendingCounts.evening)) * 100) || 0}%
+                  </span>
+                  <span className="text-gray-600 font-medium">Complete</span>
+                </div>
+              </div>
+              
+              {/* Farmer-friendly Stats */}
+              <div className="flex-1 w-full">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Total Animals */}
+                  <div className="bg-blue-50 rounded-xl p-6 border-l-4 border-blue-500">
+                    <div className="flex items-center gap-3">
+                      <div className="text-3xl">🐄</div>
+                      <div>
+                        <div className="text-3xl font-bold text-blue-600">
+                          {animals.length}
+                        </div>
+                        <div className="text-blue-700 font-medium">Animals to Care For</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Medicines Given */}
+                  <div className="bg-green-50 rounded-xl p-6 border-l-4 border-green-500">
+                    <div className="flex items-center gap-3">
+                      <div className="text-3xl">✅</div>
+                      <div>
+                        <div className="text-3xl font-bold text-green-600">
+                          {givenDoses.size}
+                        </div>
+                        <div className="text-green-700 font-medium">Medicines Given</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Medicines Pending */}
+                  <div className="bg-orange-50 rounded-xl p-6 border-l-4 border-orange-500">
+                    <div className="flex items-center gap-3">
+                      <div className="text-3xl">⏳</div>
+                      <div>
+                        <div className="text-3xl font-bold text-orange-600">
+                          {pendingCounts.morning + pendingCounts.afternoon + pendingCounts.evening}
+                        </div>
+                        <div className="text-orange-700 font-medium">Still Need Medicine</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Today's Goal */}
+                  <div className="bg-purple-50 rounded-xl p-6 border-l-4 border-purple-500">
+                    <div className="flex items-center gap-3">
+                      <div className="text-3xl">🎯</div>
+                      <div>
+                        <div className="text-3xl font-bold text-purple-600">
+                          {givenDoses.size + pendingCounts.morning + pendingCounts.afternoon + pendingCounts.evening}
+                        </div>
+                        <div className="text-purple-700 font-medium">Total for Today</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Progress Message */}
+            <div className="mt-6 text-center">
+              {(() => {
+                const percentage = Math.round((givenDoses.size / (givenDoses.size + pendingCounts.morning + pendingCounts.afternoon + pendingCounts.evening)) * 100) || 0;
+                if (percentage === 100) {
+                  return (
+                    <div className="bg-green-100 border border-green-300 rounded-lg p-4">
+                      <div className="text-2xl mb-2">🎉 Excellent Work!</div>
+                      <div className="text-green-800 font-medium text-lg">
+                        All animals have received their medicines today. Your farm is healthy! 
+                      </div>
+                    </div>
+                  );
+                } else if (percentage >= 75) {
+                  return (
+                    <div className="bg-blue-100 border border-blue-300 rounded-lg p-4">
+                      <div className="text-2xl mb-2">👏 Great Progress!</div>
+                      <div className="text-blue-800 font-medium text-lg">
+                        You're almost done! Just {pendingCounts.morning + pendingCounts.afternoon + pendingCounts.evening} more medicines to give.
+                      </div>
+                    </div>
+                  );
+                } else if (percentage >= 50) {
+                  return (
+                    <div className="bg-yellow-100 border border-yellow-300 rounded-lg p-4">
+                      <div className="text-2xl mb-2">💪 Keep Going!</div>
+                      <div className="text-yellow-800 font-medium text-lg">
+                        Halfway there! Your animals are counting on you.
+                      </div>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div className="bg-orange-100 border border-orange-300 rounded-lg p-4">
+                      <div className="text-2xl mb-2">🌅 Let's Get Started!</div>
+                      <div className="text-orange-800 font-medium text-lg">
+                        Time to give your animals their medicine. Start with the morning doses!
+                      </div>
+                    </div>
+                  );
+                }
+              })()}
+            </div>
+          </div>
           
-          {currentUser?.role === 'farmer' ? (
-            <>
-              <button className="p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors duration-200 text-left">
-                <Calendar className="w-6 h-6 text-green-600 mb-2" />
-                <h4 className="font-medium text-gray-900">Check Treatment Schedule</h4>
-                <p className="text-sm text-gray-600">View upcoming treatment schedules</p>
-              </button>
-              
-              <button className="p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors duration-200 text-left">
-                <FileText className="w-6 h-6 text-blue-600 mb-2" />
-                <h4 className="font-medium text-gray-900">Download Reports</h4>
-                <p className="text-sm text-gray-600">Get treatment history reports</p>
-              </button>
-              
-              <button className="p-4 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors duration-200 text-left">
-                <Activity className="w-6 h-6 text-purple-600 mb-2" />
-                <h4 className="font-medium text-gray-900">Contact Veterinarian</h4>
-                <p className="text-sm text-gray-600">Chat with your veterinarian</p>
-              </button>
-            </>
-          ) : (
-            <>
-              <button className="p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors duration-200 text-left">
-                <FileText className="w-6 h-6 text-green-600 mb-2" />
-                <h4 className="font-medium text-gray-900">Add New Treatment</h4>
-                <p className="text-sm text-gray-600">Record new animal treatment</p>
-              </button>
-              
-              <button className="p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors duration-200 text-left">
-                <TrendingUp className="w-6 h-6 text-blue-600 mb-2" />
-                <h4 className="font-medium text-gray-900">View Analytics</h4>
-                <p className="text-sm text-gray-600">Check treatment statistics</p>
-              </button>
-              
-              <button className="p-4 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors duration-200 text-left">
-                <Activity className="w-6 h-6 text-purple-600 mb-2" />
-                <h4 className="font-medium text-gray-900">Farmer Messages</h4>
-                <p className="text-sm text-gray-600">Respond to farmer queries</p>
-              </button>
-            </>
-          )}
+          {/* Time-based Progress Bars */}
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <h3 className="text-xl font-bold text-gray-800 mb-6 text-center">
+              📅 Medicine Schedule Progress
+            </h3>
+            
+            <div className="space-y-4">
+              {timeSlots.map(slot => {
+                const totalForSlot = animals.reduce((count, animal) => {
+                  return count + animal.drugs.filter(drug => drug.time === slot.id).length;
+                }, 0);
+                const completedForSlot = animals.reduce((count, animal) => {
+                  return count + animal.drugs.filter(drug => 
+                    drug.time === slot.id && (drug.given || givenDoses.has(drug.id))
+                  ).length;
+                }, 0);
+                const progressPercentage = totalForSlot > 0 ? (completedForSlot / totalForSlot) * 100 : 0;
+                
+                return (
+                  <div key={slot.id} className={`${slot.bgColor} rounded-lg p-4`}>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{slot.icon}</span>
+                        <div>
+                          <h4 className={`font-bold ${slot.textColor} text-lg`}>
+                            {slot.name} Time
+                          </h4>
+                          <p className={`${slot.textColor} text-sm`}>
+                            {completedForSlot} of {totalForSlot} medicines given
+                          </p>
+                        </div>
+                      </div>
+                      <div className={`text-xl font-bold ${slot.textColor}`}>
+                        {Math.round(progressPercentage)}%
+                      </div>
+                    </div>
+                    
+                    {/* Progress Bar */}
+                    <div className="w-full bg-white bg-opacity-50 rounded-full h-3">
+                      <div 
+                        className="h-3 rounded-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-700 ease-out"
+                        style={{ width: `${progressPercentage}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default Dashboard;
+export default AnimalDoseDashboard;
