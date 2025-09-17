@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Clock, Pill, Check, ArrowLeft, Eye, Undo } from 'lucide-react';
+import { Clock, Pill, Check, ArrowLeft, Eye, Undo, Award, PartyPopper } from 'lucide-react';
 
 const AnimalDoseDashboard = () => {
   // Sample data - in real app this would come from API
@@ -7,8 +7,9 @@ const AnimalDoseDashboard = () => {
     {
       id: 1,
       name: "Cow A1",
-      lastMedicineDate: "2025-09-17", // 2 days ago
-      waitingPeriod: 7, // 7 days waiting period for milk
+      lastMedicineDate: "2025-09-17",
+      waitingPeriod: 7,
+      productType: "Milk",
       drugs: [
         { id: 1, name: "Antibiotic", dose: "50ml", time: "morning", given: false, disease: "Infection", waitingDays: 7 },
         { id: 2, name: "Vitamin B12", dose: "25ml", time: "evening", given: false, disease: "Nutritional Deficiency", waitingDays: 0 }
@@ -17,10 +18,9 @@ const AnimalDoseDashboard = () => {
     {
       id: 2,
       name: "Cow A2",
-     
-      lastMedicineDate: "2025-09-12", // 4 days ago
-      waitingPeriod: 5, // 5 days waiting period for milk
-      
+      lastMedicineDate: "2025-09-12",
+      waitingPeriod: 5,
+      productType: "Milk",
       drugs: [
         { id: 3, name: "Pain Relief - Meloxicam", dose: "30ml", time: "morning", given: false, disease: "Joint Pain", waitingDays: 5 },
         { id: 4, name: "Pain Relief - Aspirin", dose: "20ml", time: "afternoon", given: false, disease: "Joint Pain", waitingDays: 3 },
@@ -28,14 +28,12 @@ const AnimalDoseDashboard = () => {
         { id: 6, name: "Iron Supplement", dose: "40ml", time: "afternoon", given: false, disease: "Anemia", waitingDays: 0 }
       ]
     },
-    
     {
       id: 3,
       name: "Cow A3",
-     
-      lastMedicineDate: "2025-09-10", // 6 days ago
-      waitingPeriod: 10, // 10 days waiting period for milk
-     
+      lastMedicineDate: "2025-09-10",
+      waitingPeriod: 10,
+      productType: "Milk",
       drugs: [
         { id: 11, name: "Deworming - Ivermectin", dose: "45ml", time: "morning", given: false, disease: "Parasitic Infection", waitingDays: 10 },
         { id: 12, name: "Deworming - Albendazole", dose: "30ml", time: "afternoon", given: false, disease: "Parasitic Infection", waitingDays: 7 },
@@ -47,10 +45,9 @@ const AnimalDoseDashboard = () => {
     {
       id: 5,
       name: "Calf C1",
-      
-      lastMedicineDate: "2025-09-15", // 1 day ago
-      waitingPeriod: 14, // 14 days waiting period for meat (when grown)
-     
+      lastMedicineDate: "2025-09-15",
+      waitingPeriod: 14,
+      productType: "Milk", // Changed to Milk to remove meat icon implication
       drugs: [
         { id: 16, name: "Growth Hormone", dose: "15ml", time: "evening", given: false, disease: "Growth Support", waitingDays: 14 },
         { id: 17, name: "Pain Relief - Acetaminophen", dose: "10ml", time: "morning", given: false, disease: "General Pain", waitingDays: 2 },
@@ -60,10 +57,9 @@ const AnimalDoseDashboard = () => {
     {
       id: 6,
       name: "Cow A4",
-     
-      lastMedicineDate: "2025-09-08", // 8 days ago
-      waitingPeriod: 7, // 7 days waiting period for milk
-      
+      lastMedicineDate: "2025-09-08",
+      waitingPeriod: 7,
+      productType: "Milk",
       drugs: [
         { id: 19, name: "Pain Relief - Tramadol", dose: "40ml", time: "morning", given: false, disease: "Chronic Pain", waitingDays: 7 },
         { id: 20, name: "Pain Relief - Morphine", dose: "15ml", time: "afternoon", given: false, disease: "Chronic Pain", waitingDays: 10 },
@@ -77,13 +73,11 @@ const AnimalDoseDashboard = () => {
   const [selectedAnimal, setSelectedAnimal] = useState(null);
   const [givenDoses, setGivenDoses] = useState(new Set());
 
-  // Calculate days remaining for product to be ready for sale
   const calculateWaitingPeriod = (animal) => {
     const today = new Date();
     const lastMedicineDate = new Date(animal.lastMedicineDate);
     const daysSinceLastMedicine = Math.floor((today - lastMedicineDate) / (1000 * 60 * 60 * 24));
     
-    // Find the highest waiting period from all medicines given to this animal
     const maxWaitingDays = Math.max(...animal.drugs.map(drug => drug.waitingDays || 0));
     const effectiveWaitingPeriod = Math.max(animal.waitingPeriod, maxWaitingDays);
     
@@ -91,12 +85,10 @@ const AnimalDoseDashboard = () => {
     return Math.max(0, daysRemaining);
   };
 
-  // Get animals ready for sale
   const getAnimalsReadyForSale = () => {
     return animals.filter(animal => calculateWaitingPeriod(animal) === 0);
   };
 
-  // Calculate pending doses for each time slot
   const pendingCounts = useMemo(() => {
     const counts = { morning: 0, afternoon: 0, evening: 0 };
     
@@ -111,7 +103,6 @@ const AnimalDoseDashboard = () => {
     return counts;
   }, [animals, givenDoses]);
 
-  // Get animals with pending doses for selected time slot
   const getAnimalsForTimeSlot = (timeSlot) => {
     return animals.filter(animal => 
       animal.drugs.some(drug => 
@@ -125,12 +116,10 @@ const AnimalDoseDashboard = () => {
     }));
   };
 
-  // Handle dose completion
   const handleDoseGiven = (drugId) => {
     setGivenDoses(prev => new Set([...prev, drugId]));
   };
 
-  // Handle undo dose
   const handleUndoDose = (drugId) => {
     setGivenDoses(prev => {
       const newSet = new Set(prev);
@@ -139,31 +128,27 @@ const AnimalDoseDashboard = () => {
     });
   };
 
-  // Time slot data
   const timeSlots = [
     {
       id: 'morning',
       name: 'Morning',
       icon: '🌅',
-      bgColor: 'bg-orange-100',
-      borderColor: 'border-orange-300',
-      textColor: 'text-orange-800'
+      gradient: 'from-orange-400 to-yellow-300',
+      shadow: 'shadow-orange-200'
     },
     {
       id: 'afternoon',
       name: 'Afternoon',
       icon: '☀️',
-      bgColor: 'bg-yellow-100',
-      borderColor: 'border-yellow-300',
-      textColor: 'text-yellow-800'
+      gradient: 'from-yellow-400 to-amber-300',
+      shadow: 'shadow-yellow-200'
     },
     {
       id: 'evening',
       name: 'Evening',
       icon: '🌙',
-      bgColor: 'bg-blue-100',
-      borderColor: 'border-blue-300',
-      textColor: 'text-blue-800'
+      gradient: 'from-blue-500 to-indigo-400',
+      shadow: 'shadow-blue-200'
     }
   ];
 
@@ -172,31 +157,35 @@ const AnimalDoseDashboard = () => {
     const animal = animals.find(a => a.id === selectedAnimal.id);
     const selectedSlot = timeSlots.find(slot => slot.id === selectedTimeSlot);
     const relevantDrugs = animal.drugs.filter(drug => drug.time === selectedTimeSlot);
+    const totalDrugsForSlot = relevantDrugs.length;
+    const completedDrugsForSlot = relevantDrugs.filter(drug => drug.given || givenDoses.has(drug.id)).length;
+    const progressPercentage = totalDrugsForSlot > 0 ? (completedDrugsForSlot / totalDrugsForSlot) * 100 : 0;
 
     return (
-      <div className="min-h-screen bg-gray-50 p-4">
+      <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8 font-sans">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setSelectedAnimal(null)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-3 hover:bg-gray-100 rounded-full transition-colors"
+                aria-label="Go back"
               >
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-6 h-6 text-gray-600" />
               </button>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <span className="text-green-600 font-bold text-lg">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-green-600 font-bold text-2xl">
                     {animal.name.charAt(0)}
                   </span>
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-800">
-                    {animal.name} - Treatment Details
+                  <h1 className="text-3xl font-bold text-gray-800">
+                    {animal.name}
                   </h1>
                   <p className="text-gray-600">
-                    {selectedSlot.name} doses ({relevantDrugs.length} treatments)
+                    {selectedSlot.name} Treatment Details
                   </p>
                 </div>
               </div>
@@ -204,9 +193,9 @@ const AnimalDoseDashboard = () => {
           </div>
 
           {/* Treatment Details */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">
-              Treatment Schedule for {selectedSlot.name}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+              Treatment Schedule
             </h2>
             
             <div className="space-y-4">
@@ -216,14 +205,14 @@ const AnimalDoseDashboard = () => {
                 return (
                   <div
                     key={drug.id}
-                    className={`p-6 border-2 rounded-lg transition-all duration-300 ${
+                    className={`p-5 border-2 rounded-xl transition-all duration-300 ${
                       isGiven 
                         ? 'border-green-300 bg-green-50' 
                         : 'border-gray-200 bg-white'
                     }`}
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <div className="flex items-center gap-4 flex-1">
                         <div className={`p-3 rounded-full ${
                           isGiven ? 'bg-green-200' : 'bg-blue-100'
                         }`}>
@@ -233,32 +222,14 @@ const AnimalDoseDashboard = () => {
                         </div>
                         
                         <div>
-                          <h3 className={`text-lg font-semibold ${
+                          <h3 className={`text-xl font-bold ${
                             isGiven ? 'text-green-800' : 'text-gray-800'
                           }`}>
                             {drug.name}
                           </h3>
-                          <div className="space-y-1">
-                            <p className={`text-sm ${
-                              isGiven ? 'text-green-600' : 'text-gray-600'
-                            }`}>
-                              <span className="font-medium">Disease:</span> {drug.disease}
-                            </p>
-                            <p className={`text-sm ${
-                              isGiven ? 'text-green-600' : 'text-gray-600'
-                            }`}>
-                              <span className="font-medium">Dosage:</span> {drug.dose}
-                            </p>
-                            <p className={`text-sm ${
-                              isGiven ? 'text-green-600' : 'text-gray-600'
-                            }`}>
-                              <span className="font-medium">Time:</span> {drug.time}
-                            </p>
-                            <p className={`text-sm font-medium ${
-                              isGiven ? 'text-green-600' : 'text-orange-600'
-                            }`}>
-                              Status: {isGiven ? '✅ Given' : '⏳ Pending'}
-                            </p>
+                          <div className="text-sm space-y-1 mt-1">
+                            <p className="text-gray-600"><span className="font-medium">Disease:</span> {drug.disease}</p>
+                            <p className="text-gray-600"><span className="font-medium">Dosage:</span> {drug.dose}</p>
                           </div>
                         </div>
                       </div>
@@ -267,18 +238,18 @@ const AnimalDoseDashboard = () => {
                         {isGiven ? (
                           <button
                             onClick={() => handleUndoDose(drug.id)}
-                            className="flex items-center gap-2 px-4 py-2 bg-orange-100 text-orange-700 border border-orange-300 rounded-lg hover:bg-orange-200 transition-colors"
+                            className="flex items-center gap-2 px-5 py-2 text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition-colors shadow-sm"
                           >
                             <Undo className="w-4 h-4" />
-                            <span className="font-medium">Undo</span>
+                            <span className="font-medium hidden sm:inline">Undo</span>
                           </button>
                         ) : (
                           <button
                             onClick={() => handleDoseGiven(drug.id)}
-                            className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 border border-green-300 rounded-lg hover:bg-green-200 transition-colors"
+                            className="flex items-center gap-2 px-5 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600 transition-colors shadow-sm"
                           >
                             <Check className="w-4 h-4" />
-                            <span className="font-medium">Mark as Given</span>
+                            <span className="font-medium hidden sm:inline">Mark as Given</span>
                           </button>
                         )}
                       </div>
@@ -288,103 +259,59 @@ const AnimalDoseDashboard = () => {
               })}
             </div>
 
-            {/* Summary for this animal - Farmer Friendly */}
-            <div className="mt-6 p-6 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border border-blue-200">
+            {/* Summary for this animal */}
+            <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-green-50 rounded-xl border border-blue-200 shadow-inner">
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-2xl">📊</span>
-                <h3 className="font-bold text-gray-800 text-lg">{animal.name}'s Medicine Progress</h3>
+                <h3 className="font-bold text-gray-800 text-lg">Daily Progress for {animal.name}</h3>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Progress Circle for this animal */}
-                <div className="flex items-center justify-center">
-                  <div className="relative">
-                    <svg width="120" height="120" className="transform -rotate-90">
-                      <circle
-                        cx="60"
-                        cy="60"
-                        r="45"
-                        stroke="#e5e7eb"
-                        strokeWidth="10"
-                        fill="none"
-                      />
-                      <circle
-                        cx="60"
-                        cy="60"
-                        r="45"
-                        stroke="#10b981"
-                        strokeWidth="10"
-                        fill="none"
-                        strokeLinecap="round"
-                        strokeDasharray={`${2 * Math.PI * 45}`}
-                        strokeDashoffset={`${2 * Math.PI * 45 * (1 - (relevantDrugs.filter(drug => drug.given || givenDoses.has(drug.id)).length / relevantDrugs.length))}`}
-                        className="transition-all duration-700 ease-out"
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-2xl font-bold text-green-600">
-                        {Math.round((relevantDrugs.filter(drug => drug.given || givenDoses.has(drug.id)).length / relevantDrugs.length) * 100)}%
-                      </span>
-                    </div>
+              <div className="flex flex-col items-center gap-6">
+                <div className="relative">
+                  <svg width="150" height="150" className="transform -rotate-90">
+                    <circle
+                      cx="75"
+                      cy="75"
+                      r="65"
+                      stroke="#e5e7eb"
+                      strokeWidth="12"
+                      fill="none"
+                    />
+                    <circle
+                      cx="75"
+                      cy="75"
+                      r="65"
+                      stroke="#10b981"
+                      strokeWidth="12"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeDasharray={`${2 * Math.PI * 65}`}
+                      strokeDashoffset={`${2 * Math.PI * 65 * (1 - (progressPercentage / 100))}`}
+                      className="transition-all duration-700 ease-out"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-3xl font-extrabold text-green-600">
+                      {Math.round(progressPercentage)}%
+                    </span>
+                    <span className="text-sm text-gray-600">Complete</span>
                   </div>
                 </div>
                 
-                {/* Stats */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">💊</span>
-                      <span className="text-gray-700 font-medium">Total medicines:</span>
-                    </div>
-                    <span className="text-xl font-bold text-blue-600">{relevantDrugs.length}</span>
+                <div className="grid grid-cols-2 gap-4 w-full">
+                  <div className="p-4 bg-white rounded-lg shadow-sm text-center">
+                    <div className="text-xl font-bold text-blue-600">{totalDrugsForSlot}</div>
+                    <div className="text-gray-700 font-medium text-sm">Total Doses</div>
                   </div>
-                  
-                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">✅</span>
-                      <span className="text-gray-700 font-medium">Given:</span>
-                    </div>
-                    <span className="text-xl font-bold text-green-600">
-                      {relevantDrugs.filter(drug => drug.given || givenDoses.has(drug.id)).length}
-                    </span>
+                  <div className="p-4 bg-white rounded-lg shadow-sm text-center">
+                    <div className="text-xl font-bold text-green-600">{completedDrugsForSlot}</div>
+                    <div className="text-gray-700 font-medium text-sm">Doses Given</div>
                   </div>
-                  
-                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">⏳</span>
-                      <span className="text-gray-700 font-medium">Still needed:</span>
-                    </div>
-                    <span className="text-xl font-bold text-orange-600">
-                      {relevantDrugs.filter(drug => !drug.given && !givenDoses.has(drug.id)).length}
-                    </span>
+                  <div className="col-span-2 p-4 bg-white rounded-lg shadow-sm text-center">
+                    <div className="text-xl font-bold text-orange-600">{totalDrugsForSlot - completedDrugsForSlot}</div>
+                    <div className="text-gray-700 font-medium text-sm">Doses Still Pending</div>
                   </div>
                 </div>
-              </div>
-              
-              {/* Encouraging Message */}
-              <div className="mt-4 text-center">
-                {(() => {
-                  const completed = relevantDrugs.filter(drug => drug.given || givenDoses.has(drug.id)).length;
-                  const total = relevantDrugs.length;
-                  
-                  if (completed === total) {
-                    return (
-                      <div className="bg-green-100 border border-green-300 rounded-lg p-3">
-                        <span className="text-green-800 font-medium">
-                          🎉 {animal.name} is all set for {selectedSlot.name.toLowerCase()}!
-                        </span>
-                      </div>
-                    );
-                  } else {
-                    return (
-                      <div className="bg-blue-100 border border-blue-300 rounded-lg p-3">
-                        <span className="text-blue-800 font-medium">
-                          💪 Keep going! {animal.name} needs {total - completed} more medicine{total - completed > 1 ? 's' : ''}.
-                        </span>
-                      </div>
-                    );
-                  }
-                })()}
               </div>
             </div>
           </div>
@@ -399,25 +326,26 @@ const AnimalDoseDashboard = () => {
     const selectedSlot = timeSlots.find(slot => slot.id === selectedTimeSlot);
 
     return (
-      <div className="min-h-screen bg-gray-50 p-4">
+      <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8 font-sans">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setSelectedTimeSlot(null)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-3 hover:bg-gray-100 rounded-full transition-colors"
+                aria-label="Go back"
               >
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-6 h-6 text-gray-600" />
               </button>
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">{selectedSlot.icon}</span>
+              <div className="flex items-center gap-4">
+                <span className="text-4xl">{selectedSlot.icon}</span>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-800">
+                  <h1 className="text-3xl font-bold text-gray-800">
                     {selectedSlot.name} Doses
                   </h1>
                   <p className="text-gray-600">
-                    {animalsForTimeSlot.length} animals with pending doses
+                    {animalsForTimeSlot.length} animal{animalsForTimeSlot.length !== 1 ? 's' : ''} with pending doses
                   </p>
                 </div>
               </div>
@@ -427,45 +355,44 @@ const AnimalDoseDashboard = () => {
           {/* Animal List */}
           <div className="space-y-4">
             {animalsForTimeSlot.length === 0 ? (
-              <div className="bg-white rounded-lg shadow-md p-8 text-center">
-                <Check className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              <div className="bg-white rounded-xl shadow-lg p-8 text-center border-2 border-green-300 bg-green-50">
+                <Check className="w-16 h-16 text-green-500 mx-auto mb-4 animate-bounce" />
+                <h3 className="text-2xl font-bold text-gray-800 mb-2">
                   All Done! 🎉
                 </h3>
                 <p className="text-gray-600">
-                  No pending {selectedSlot.name.toLowerCase()} doses
+                  No pending {selectedSlot.name.toLowerCase()} doses to give.
                 </p>
               </div>
             ) : (
               animalsForTimeSlot.map(animal => (
-                <div key={animal.id} className="bg-white rounded-lg shadow-md p-6">
-                  <div className="flex items-center justify-between">
+                <div key={animal.id} className="bg-white rounded-xl shadow-md p-6 border-2 border-gray-200">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                        <span className="text-green-600 font-semibold">
+                      <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center">
+                        <span className="text-blue-600 font-bold text-2xl">
                           {animal.name.charAt(0)}
                         </span>
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-800">
+                        <h3 className="text-xl font-bold text-gray-800">
                           {animal.name}
                         </h3>
                         <p className="text-gray-600">
-                          {animal.drugs.length} dose{animal.drugs.length > 1 ? 's' : ''} pending
+                          {animal.drugs.length} dose{animal.drugs.length !== 1 ? 's' : ''} pending
                         </p>
                       </div>
                     </div>
 
                     <button
                       onClick={() => setSelectedAnimal(animal)}
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 border border-blue-300 rounded-lg hover:bg-blue-200 transition-colors"
+                      className="flex items-center gap-2 px-5 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors shadow-sm"
                     >
                       <Eye className="w-4 h-4" />
                       <span className="font-medium">View Treatments</span>
                     </button>
                   </div>
 
-                  {/* Quick preview of drugs */}
                   <div className="mt-4 pt-4 border-t border-gray-200">
                     <div className="flex flex-wrap gap-2">
                       {animal.drugs.map(drug => (
@@ -474,9 +401,8 @@ const AnimalDoseDashboard = () => {
                           className="flex items-center gap-1 px-3 py-1 bg-gray-100 rounded-full text-sm"
                         >
                           <Pill className="w-3 h-3 text-blue-500" />
-                          <span className="text-gray-700">{drug.name}</span>
+                          <span className="text-gray-700 font-medium">{drug.name}</span>
                           <span className="text-gray-500">({drug.dose})</span>
-                          <span className="text-xs text-blue-600 ml-1">• {drug.disease}</span>
                         </div>
                       ))}
                     </div>
@@ -491,393 +417,198 @@ const AnimalDoseDashboard = () => {
   }
 
   // Main Dashboard View
+  const totalDoses = animals.reduce((total, animal) => total + animal.drugs.length, 0);
+  const totalGivenDoses = givenDoses.size;
+  const totalPendingDoses = totalDoses - totalGivenDoses;
+  const overallProgress = totalDoses > 0 ? (totalGivenDoses / totalDoses) * 100 : 0;
+  
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8 font-sans">
       <div className="max-w-6xl mx-auto">
-        {/* Animals Ready for Sale Notification */}
-        {(() => {
-          const readyAnimals = getAnimalsReadyForSale();
-          if (readyAnimals.length > 0) {
-            return (
-              <div className="mb-6 bg-gradient-to-r from-green-400 to-green-600 rounded-xl shadow-lg p-6 text-white animate-pulse">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="text-4xl">🎉</div>
-                    <div>
-                      <h2 className="text-2xl font-bold mb-1">
-                        Great News! Products Ready for Sale!
-                      </h2>
-                      <p className="text-green-100 text-lg">
-                        {readyAnimals.length} animal{readyAnimals.length > 1 ? 's have' : ' has'} completed the waiting period
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-3xl font-bold">{readyAnimals.length}</div>
-                    <div className="text-green-100">Ready to Sell</div>
-                  </div>
-                </div>
-                
-                <div className="mt-4 flex flex-wrap gap-3">
-                  {readyAnimals.map(animal => (
-                    <div key={animal.id} className="bg-white bg-opacity-20 rounded-lg px-4 py-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xl">
-                          {animal.type === 'dairy' ? '🥛' : animal.type === 'meat' ? '🥩' : '🐄'}
-                        </span>
-                        <div>
-                          <div className="font-semibold">{animal.name}</div>
-                          <div className="text-sm text-green-100">{animal.productType} Ready</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          }
-          return null;
-        })()}
-
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+        {/* Main Title and Ready for Sale Notification */}
+        <div className="flex flex-col sm:flex-row items-center justify-between mb-8">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 tracking-tight text-center sm:text-left mb-4 sm:mb-0">
             Animal Medication Dashboard
           </h1>
-          <p className="text-gray-600">
-            Track and manage daily medication doses for your animals
-          </p>
+          {(() => {
+            const readyAnimals = getAnimalsReadyForSale();
+            if (readyAnimals.length > 0) {
+              return (
+                <div className="flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-full border border-green-300 font-semibold animate-pulse">
+                  <PartyPopper className="w-5 h-5" />
+                  <span className="whitespace-nowrap">{readyAnimals.length} Animal{readyAnimals.length > 1 ? 's' : ''} Ready for Sale!</span>
+                </div>
+              );
+            }
+            return null;
+          })()}
         </div>
 
         {/* Time Slot Cards */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {timeSlots.map(slot => (
             <div
               key={slot.id}
               onClick={() => setSelectedTimeSlot(slot.id)}
-              className={`${slot.bgColor} ${slot.borderColor} border-2 rounded-xl p-6 cursor-pointer transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl`}
+              className={`relative flex flex-col justify-between h-48 rounded-3xl p-6 cursor-pointer transform transition-all duration-300
+                          bg-gradient-to-br ${slot.gradient} 
+                          shadow-lg ${slot.shadow} hover:shadow-xl hover:-translate-y-1`}
             >
-              <div className="text-center">
-                <div className="text-4xl mb-4">{slot.icon}</div>
-                
-                <h2 className={`text-2xl font-bold ${slot.textColor} mb-2`}>
-                  {slot.name}
-                </h2>
-                
-                <div className="flex items-center justify-center gap-2 mb-4">
-                  <Clock className={`w-5 h-5 ${slot.textColor}`} />
-                  <span className={`${slot.textColor} font-medium`}>
-                    {slot.id === 'morning' && '6:00 - 10:00 AM'}
-                    {slot.id === 'afternoon' && '12:00 - 4:00 PM'}
-                    {slot.id === 'evening' && '6:00 - 9:00 PM'}
-                  </span>
-                </div>
-
-                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${
-                  pendingCounts[slot.id] > 0 
-                    ? 'bg-red-100 border border-red-300' 
-                    : 'bg-green-100 border border-green-300'
-                }`}>
-                  <span className={`text-2xl font-bold ${
-                    pendingCounts[slot.id] > 0 ? 'text-red-600' : 'text-green-600'
-                  }`}>
+              <div className="flex justify-between items-start">
+                <div className="text-6xl leading-none">{slot.icon}</div>
+                <div className="text-center">
+                  <span className="block text-5xl font-extrabold text-white text-opacity-90 leading-none">
                     {pendingCounts[slot.id]}
                   </span>
-                  <span className={`font-medium ${
-                    pendingCounts[slot.id] > 0 ? 'text-red-600' : 'text-green-600'
-                  }`}>
-                    {pendingCounts[slot.id] === 1 ? 'dose' : 'doses'} pending
+                  <span className="block text-sm font-semibold text-white text-opacity-70 uppercase tracking-wider">
+                    pending
                   </span>
                 </div>
-
-                <div className={`mt-4 text-sm ${slot.textColor} opacity-75`}>
-                  Click to view animals
-                </div>
+              </div>
+              
+              <div className="mt-4">
+                <h2 className="text-3xl font-bold text-white mb-1">
+                  {slot.name}
+                </h2>
+                <p className="text-sm text-white text-opacity-80">
+                  Click to view schedule
+                </p>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Summary Stats with Graph - Farmer Friendly */}
-        <div className="mt-8 space-y-6">
-          {/* Progress Circle */}
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-              🏠 Today's Medicine Progress
-            </h3>
+        {/* Overall Progress and Stats */}
+        <div className="bg-white rounded-3xl shadow-lg p-8 mb-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+            🏠 Today's Progress at a Glance
+          </h2>
+          <div className="flex flex-col lg:flex-row items-center gap-8">
+            <div className="relative flex-shrink-0">
+              <svg width="200" height="200" className="transform -rotate-90">
+                <circle
+                  cx="100" cy="100" r="80"
+                  stroke="#e5e7eb" strokeWidth="16" fill="none"
+                />
+                <circle
+                  cx="100" cy="100" r="80"
+                  stroke="#10b981" strokeWidth="16" fill="none"
+                  strokeLinecap="round"
+                  strokeDasharray={`${2 * Math.PI * 80}`}
+                  strokeDashoffset={`${2 * Math.PI * 80 * (1 - (overallProgress / 100))}`}
+                  className="transition-all duration-1000 ease-out"
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-5xl font-extrabold text-green-600">
+                  {Math.round(overallProgress) || 0}%
+                </span>
+                <span className="text-lg font-medium text-gray-600">Complete</span>
+              </div>
+            </div>
             
-            <div className="flex flex-col lg:flex-row items-center gap-8">
-              {/* Circular Progress Chart */}
-              <div className="relative flex items-center justify-center">
-                <svg width="200" height="200" className="transform -rotate-90">
-                  <circle
-                    cx="100"
-                    cy="100"
-                    r="80"
-                    stroke="#e5e7eb"
-                    strokeWidth="16"
-                    fill="none"
-                  />
-                  <circle
-                    cx="100"
-                    cy="100"
-                    r="80"
-                    stroke="#10b981"
-                    strokeWidth="16"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeDasharray={`${2 * Math.PI * 80}`}
-                    strokeDashoffset={`${2 * Math.PI * 80 * (1 - (givenDoses.size / (givenDoses.size + pendingCounts.morning + pendingCounts.afternoon + pendingCounts.evening)))}`}
-                    className="transition-all duration-1000 ease-out"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-4xl font-bold text-green-600">
-                    {Math.round((givenDoses.size / (givenDoses.size + pendingCounts.morning + pendingCounts.afternoon + pendingCounts.evening)) * 100) || 0}%
-                  </span>
-                  <span className="text-gray-600 font-medium">Complete</span>
+            <div className="flex-1 w-full">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-blue-50 rounded-xl p-4 border-l-4 border-blue-500">
+                  <div className="text-2xl font-bold text-blue-600">{animals.length}</div>
+                  <div className="text-blue-700 font-medium text-sm">Animals</div>
+                </div>
+                <div className="bg-green-50 rounded-xl p-4 border-l-4 border-green-500">
+                  <div className="text-2xl font-bold text-green-600">{totalGivenDoses}</div>
+                  <div className="text-green-700 font-medium text-sm">Doses Given</div>
+                </div>
+                <div className="bg-orange-50 rounded-xl p-4 border-l-4 border-orange-500">
+                  <div className="text-2xl font-bold text-orange-600">{totalPendingDoses}</div>
+                  <div className="text-orange-700 font-medium text-sm">Doses Pending</div>
+                </div>
+                <div className="bg-purple-50 rounded-xl p-4 border-l-4 border-purple-500">
+                  <div className="text-2xl font-bold text-purple-600">{totalDoses}</div>
+                  <div className="text-purple-700 font-medium text-sm">Total Today</div>
                 </div>
               </div>
+            </div>
+          </div>
+          <div className="mt-6 text-center">
+            {(() => {
+              const completed = totalGivenDoses;
+              const total = totalDoses;
+              if (completed === total) {
+                return <p className="text-green-800 text-lg font-medium bg-green-100 p-4 rounded-lg">🎉 All medicines have been given. Job well done!</p>;
+              } else if (completed > 0 && completed < total) {
+                return <p className="text-blue-800 text-lg font-medium bg-blue-100 p-4 rounded-lg">💪 You're on track! Keep going to complete all doses for the day.</p>;
+              }
+              return <p className="text-gray-800 text-lg font-medium bg-gray-100 p-4 rounded-lg">🗓️ Time to start the day's medication schedule!</p>;
+            })()}
+          </div>
+        </div>
+
+        {/* Waiting Period Section */}
+        <div className="bg-white rounded-3xl shadow-lg p-8">
+          <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+            ⏰ Product Waiting Periods
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {animals.map(animal => {
+              const daysRemaining = calculateWaitingPeriod(animal);
+              const isReady = daysRemaining === 0;
+              const maxWaiting = Math.max(animal.waitingPeriod, ...animal.drugs.map(drug => drug.waitingDays || 0));
+              const progressPercentage = (1 - (daysRemaining / maxWaiting)) * 100;
               
-              {/* Farmer-friendly Stats */}
-              <div className="flex-1 w-full">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Total Animals */}
-                  <div className="bg-blue-50 rounded-xl p-6 border-l-4 border-blue-500">
+              return (
+                <div
+                  key={animal.id}
+                  className={`p-6 rounded-xl border-2 transition-all duration-300 ${
+                    isReady
+                      ? 'border-green-400 bg-green-50 shadow-md'
+                      : daysRemaining <= 2
+                        ? 'border-yellow-400 bg-yellow-50'
+                        : 'border-gray-200 bg-gray-50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="text-3xl">🐄</div>
+                      <div className="text-4xl">🥛</div> {/* Always milk icon */}
                       <div>
-                        <div className="text-3xl font-bold text-blue-600">
-                          {animals.length}
-                        </div>
-                        <div className="text-blue-700 font-medium">Animals to Care For</div>
+                        <h4 className="text-xl font-bold text-gray-800">{animal.name}</h4>
+                        <p className="text-sm text-gray-600">
+                          Last treated: {new Date(animal.lastMedicineDate).toLocaleDateString()}
+                        </p>
                       </div>
+                    </div>
+                    <div className="text-right">
+                      {isReady ? (
+                        <div className="flex items-center gap-2 text-green-600 font-bold">
+                          <Award className="w-5 h-5" />
+                          Ready
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center">
+                          <span className={`text-3xl font-bold ${
+                            daysRemaining <= 2 ? 'text-yellow-600' : 'text-gray-600'
+                          }`}>{daysRemaining}</span>
+                          <span className={`text-sm ${
+                            daysRemaining <= 2 ? 'text-yellow-700' : 'text-gray-600'
+                          }`}>day{daysRemaining !== 1 ? 's' : ''} left</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                   
-                  {/* Medicines Given */}
-                  <div className="bg-green-50 rounded-xl p-6 border-l-4 border-green-500">
-                    <div className="flex items-center gap-3">
-                      <div className="text-3xl">✅</div>
-                      <div>
-                        <div className="text-3xl font-bold text-green-600">
-                          {givenDoses.size}
-                        </div>
-                        <div className="text-green-700 font-medium">Medicines Given</div>
-                      </div>
-                    </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full transition-all duration-500 ${
+                        isReady ? 'bg-green-500' : (daysRemaining <= 2 ? 'bg-yellow-500' : 'bg-blue-500')
+                      }`}
+                      style={{ width: `${progressPercentage}%` }}
+                    ></div>
                   </div>
-                  
-                  {/* Medicines Pending */}
-                  <div className="bg-orange-50 rounded-xl p-6 border-l-4 border-orange-500">
-                    <div className="flex items-center gap-3">
-                      <div className="text-3xl">⏳</div>
-                      <div>
-                        <div className="text-3xl font-bold text-orange-600">
-                          {pendingCounts.morning + pendingCounts.afternoon + pendingCounts.evening}
-                        </div>
-                        <div className="text-orange-700 font-medium">Still Need Medicine</div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Today's Goal */}
-                  <div className="bg-purple-50 rounded-xl p-6 border-l-4 border-purple-500">
-                    <div className="flex items-center gap-3">
-                      <div className="text-3xl">🎯</div>
-                      <div>
-                        <div className="text-3xl font-bold text-purple-600">
-                          {givenDoses.size + pendingCounts.morning + pendingCounts.afternoon + pendingCounts.evening}
-                        </div>
-                        <div className="text-purple-700 font-medium">Total for Today</div>
-                      </div>
-                    </div>
+                  <div className="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>Treatment start</span>
+                    <span>Ready date</span>
                   </div>
                 </div>
-              </div>
-            </div>
-            
-            {/* Progress Message */}
-            <div className="mt-6 text-center">
-              {(() => {
-                const percentage = Math.round((givenDoses.size / (givenDoses.size + pendingCounts.morning + pendingCounts.afternoon + pendingCounts.evening)) * 100) || 0;
-                if (percentage === 100) {
-                  return (
-                    <div className="bg-green-100 border border-green-300 rounded-lg p-4">
-                      <div className="text-2xl mb-2">🎉 Excellent Work!</div>
-                      <div className="text-green-800 font-medium text-lg">
-                        All animals have received their medicines today. Your farm is healthy! 
-                      </div>
-                    </div>
-                  );
-                } else if (percentage >= 75) {
-                  return (
-                    <div className="bg-blue-100 border border-blue-300 rounded-lg p-4">
-                      <div className="text-2xl mb-2">👏 Great Progress!</div>
-                      <div className="text-blue-800 font-medium text-lg">
-                        You're almost done! Just {pendingCounts.morning + pendingCounts.afternoon + pendingCounts.evening} more medicines to give.
-                      </div>
-                    </div>
-                  );
-                } else if (percentage >= 50) {
-                  return (
-                    <div className="bg-yellow-100 border border-yellow-300 rounded-lg p-4">
-                      <div className="text-2xl mb-2">💪 Keep Going!</div>
-                      <div className="text-yellow-800 font-medium text-lg">
-                        Halfway there! Your animals are counting on you.
-                      </div>
-                    </div>
-                  );
-                } else {
-                  return (
-                    <div className="bg-orange-100 border border-orange-300 rounded-lg p-4">
-                      <div className="text-2xl mb-2">🌅 Let's Get Started!</div>
-                      <div className="text-orange-800 font-medium text-lg">
-                        Time to give your animals their medicine. Start with the morning doses!
-                      </div>
-                    </div>
-                  );
-                }
-              })()}
-            </div>
-          </div>
-          
-          {/* Time-based Progress Bars */}
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h3 className="text-xl font-bold text-gray-800 mb-6 text-center">
-              📅 Medicine Schedule Progress
-            </h3>
-            
-            <div className="space-y-4">
-              {timeSlots.map(slot => {
-                const totalForSlot = animals.reduce((count, animal) => {
-                  return count + animal.drugs.filter(drug => drug.time === slot.id).length;
-                }, 0);
-                const completedForSlot = animals.reduce((count, animal) => {
-                  return count + animal.drugs.filter(drug => 
-                    drug.time === slot.id && (drug.given || givenDoses.has(drug.id))
-                  ).length;
-                }, 0);
-                const progressPercentage = totalForSlot > 0 ? (completedForSlot / totalForSlot) * 100 : 0;
-                
-                return (
-                  <div key={slot.id} className={`${slot.bgColor} rounded-lg p-4`}>
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">{slot.icon}</span>
-                        <div>
-                          <h4 className={`font-bold ${slot.textColor} text-lg`}>
-                            {slot.name} Time
-                          </h4>
-                          <p className={`${slot.textColor} text-sm`}>
-                            {completedForSlot} of {totalForSlot} medicines given
-                          </p>
-                        </div>
-                      </div>
-                      <div className={`text-xl font-bold ${slot.textColor}`}>
-                        {Math.round(progressPercentage)}%
-                      </div>
-                    </div>
-                    
-                    {/* Progress Bar */}
-                    <div className="w-full bg-white bg-opacity-50 rounded-full h-3">
-                      <div 
-                        className="h-3 rounded-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-700 ease-out"
-                        style={{ width: `${progressPercentage}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          
-          {/* Waiting Period Status */}
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h3 className="text-xl font-bold text-gray-800 mb-6 text-center">
-              ⏰ Product Waiting Periods
-            </h3>
-            
-            <div className="grid gap-4">
-              {animals.map(animal => {
-                const daysRemaining = calculateWaitingPeriod(animal);
-                const isReady = daysRemaining === 0;
-                
-                return (
-                  <div 
-                    key={animal.id} 
-                    className={`p-4 rounded-lg border-2 transition-all ${
-                      isReady 
-                        ? 'border-green-400 bg-green-50 shadow-lg' 
-                        : daysRemaining <= 2 
-                          ? 'border-yellow-400 bg-yellow-50' 
-                          : 'border-gray-200 bg-white'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`text-3xl ${isReady ? 'animate-bounce' : ''}`}>
-                          {animal.type === 'dairy' ? '🐄' : animal.type === 'meat' ? '🐂' : '🐮'}
-                        </div>
-                        <div>
-                          <h4 className="text-lg font-bold text-gray-800">{animal.name}</h4>
-                         
-                          <p className="text-xs text-gray-500">
-                            Last medicine: {new Date(animal.lastMedicineDate).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="text-right">
-                        {isReady ? (
-                          <div className="text-center">
-                            <div className="text-2xl font-bold text-green-600 flex items-center gap-2">
-                              ✅ Ready to Sell!
-                            </div>
-                            
-                          </div>
-                        ) : (
-                          <div className="text-center">
-                            <div className={`text-2xl font-bold ${
-                              daysRemaining <= 2 ? 'text-yellow-600' : 'text-gray-600'
-                            }`}>
-                              {daysRemaining} day{daysRemaining !== 1 ? 's' : ''}
-                            </div>
-                            <div className={`text-sm font-medium ${
-                              daysRemaining <= 2 ? 'text-yellow-700' : 'text-gray-600'
-                            }`}>
-                              {daysRemaining <= 2 ? 'Almost ready!' : 'remaining'}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {/* Progress bar for waiting period */}
-                    <div className="mt-3">
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className={`h-2 rounded-full transition-all duration-500 ${
-                            isReady 
-                              ? 'bg-green-500' 
-                              : daysRemaining <= 2 
-                                ? 'bg-yellow-500' 
-                                : 'bg-blue-500'
-                          }`}
-                          style={{ 
-                            width: `${Math.max(10, ((Math.max(animal.waitingPeriod, Math.max(...animal.drugs.map(drug => drug.waitingDays || 0))) - daysRemaining) / Math.max(animal.waitingPeriod, Math.max(...animal.drugs.map(drug => drug.waitingDays || 0)))) * 100)}%` 
-                          }}
-                        ></div>
-                      </div>
-                      <div className="flex justify-between text-xs text-gray-500 mt-1">
-                        <span>Medicine given</span>
-                        <span>Ready for sale</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+              );
+            })}
           </div>
         </div>
       </div>
