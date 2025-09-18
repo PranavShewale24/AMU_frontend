@@ -62,6 +62,91 @@ const mockReports = [
   }
 ];
 
+// New modal component to display report details
+const ReportDetailsModal = ({ report, onClose, t }) => {
+  if (!report) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-xl shadow-xl max-w-lg w-full">
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-bold text-gray-900">{report.title}</h3>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="space-y-4 text-gray-700">
+            <div>
+              <p className="font-medium text-gray-500">{t.type}:</p>
+              <p className="capitalize text-lg">{report.type}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="font-medium text-gray-500">{t.date}:</p>
+                <p>{new Date(report.date).toLocaleDateString()}</p>
+              </div>
+              <div>
+                <p className="font-medium text-gray-500">{t.farmer}:</p>
+                <p>{report.farmer}</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="font-medium text-gray-500">{t.animals}:</p>
+                <p>{report.animals}</p>
+              </div>
+              <div>
+                <p className="font-medium text-gray-500">{t.treatments}:</p>
+                <p>{report.treatments}</p>
+              </div>
+            </div>
+            <div>
+              <p className="font-medium text-gray-500">{t.size}:</p>
+              <p>{report.size}</p>
+            </div>
+            <div>
+              <p className="font-medium text-gray-500">{t.status}:</p>
+              <p className="capitalize">{report.status}</p>
+            </div>
+          </div>
+          
+          <div className="mt-6">
+            <h4 className="font-semibold text-gray-900 mb-2">Detailed Report Summary</h4>
+            <p className="text-gray-600">
+              This is a mock-up of the detailed report content. In a real application, this section would display the full, generated report data, charts, and tables. 📊
+            </p>
+          </div>
+
+          <div className="flex justify-end space-x-3 mt-6">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
+            >
+              Close
+            </button>
+            <a 
+              href="#" 
+              onClick={(e) => {
+                e.preventDefault();
+                alert(`Downloading ${report.title}...`);
+              }}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
+            >
+              Download
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
 const ReportsComponent = ({ currentUser, language = 'en' }) => {
   const [reports] = useState(mockReports);
   const [selectedReportType, setSelectedReportType] = useState('all');
@@ -75,6 +160,9 @@ const ReportsComponent = ({ currentUser, language = 'en' }) => {
     animalType: 'all',
     farmer: 'all'
   });
+  // New state variables for the view modal
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [viewedReport, setViewedReport] = useState(null);
 
   // Language translations
   const translations = {
@@ -131,7 +219,41 @@ const ReportsComponent = ({ currentUser, language = 'en' }) => {
       print: 'प्रिंट',
       completed: 'पूर्ण',
       active: 'सक्रिय',
-      pending: 'प्रतीक्षारत'
+      pending: 'प्रतीक्षारत',
+      noReports: 'कोई रिपोर्ट नहीं मिली',
+      reportType: 'रिपोर्ट का प्रकार',
+      allReports: 'सभी रिपोर्ट',
+      treatmentReports: 'इलाज की रिपोर्ट',
+      animalReports: 'पशु रिपोर्ट',
+      veterinaryReports: 'पशु चिकित्सा रिपोर्ट',
+      analyticsReports: 'विश्लेषणात्मक रिपोर्ट',
+      dateRange: 'दिनांक सीमा',
+      allTime: 'सभी समय',
+      lastWeek: 'पिछला सप्ताह',
+      lastMonth: 'पिछला महीना',
+      last3Months: 'पिछले 3 महीने',
+      title: 'शीर्षक',
+      type: 'प्रकार',
+      date: 'दिनांक',
+      size: 'आकार',
+      status: 'स्थिति',
+      actions: 'कार्य',
+      animals: 'पशु',
+      treatments: 'इलाज',
+      farmer: 'किसान',
+      downloadReports: 'रिपोर्ट डाउनलोड और निर्यात करें',
+      searchReports: 'रिपोर्ट खोजें...',
+      generateReport: 'रिपोर्ट बनाएं',
+      cancel: 'रद्द करें',
+      create: 'रिपोर्ट बनाएं',
+      selectType: 'रिपोर्ट का प्रकार चुनें',
+      selectDateRange: 'दिनांक सीमा चुनें',
+      from: 'से',
+      to: 'तक',
+      animalType: 'पशु का प्रकार',
+      allAnimals: 'सभी पशु',
+      selectFarmer: 'किसान चुनें',
+      allFarmers: 'सभी किसान'
     },
     mr: {
       reports: 'अहवाल',
@@ -141,7 +263,41 @@ const ReportsComponent = ({ currentUser, language = 'en' }) => {
       print: 'प्रिंट',
       completed: 'पूर्ण',
       active: 'सक्रिय',
-      pending: 'प्रलंबित'
+      pending: 'प्रलंबित',
+      noReports: 'कोणताही अहवाल आढळला नाही',
+      reportType: 'अहवालाचा प्रकार',
+      allReports: 'सर्व अहवाल',
+      treatmentReports: 'उपचारांचे अहवाल',
+      animalReports: 'पशूंचे अहवाल',
+      veterinaryReports: 'पशुवैद्यकीय अहवाल',
+      analyticsReports: 'विश्लेषणात्मक अहवाल',
+      dateRange: 'दिनांक श्रेणी',
+      allTime: 'सर्व काळ',
+      lastWeek: 'गेला आठवडा',
+      lastMonth: 'गेला महिना',
+      last3Months: 'गेले 3 महिने',
+      title: 'शीर्षक',
+      type: 'प्रकार',
+      date: 'दिनांक',
+      size: 'आकार',
+      status: 'स्थिती',
+      actions: 'कृती',
+      animals: 'पशू',
+      treatments: 'उपचार',
+      farmer: 'शेतकरी',
+      downloadReports: 'अहवाल डाउनलोड करा आणि निर्यात करा',
+      searchReports: 'अहवाल शोधा...',
+      generateReport: 'अहवाल तयार करा',
+      cancel: 'रद्द करा',
+      create: 'अहवाल तयार करा',
+      selectType: 'अहवालाचा प्रकार निवडा',
+      selectDateRange: 'दिनांक श्रेणी निवडा',
+      from: 'पासून',
+      to: 'पर्यंत',
+      animalType: 'पशूचा प्रकार',
+      allAnimals: 'सर्व पशू',
+      selectFarmer: 'शेतकरी निवडा',
+      allFarmers: 'सर्व शेतकरी'
     }
   };
 
@@ -464,7 +620,13 @@ const ReportsComponent = ({ currentUser, language = 'en' }) => {
                                 <Download className="w-4 h-4" />
                                 <span>{t.download}</span>
                               </button>
-                              <button className="text-blue-600 hover:text-blue-900 flex items-center space-x-1">
+                              <button
+                                onClick={() => {
+                                  setViewedReport(report);
+                                  setShowViewModal(true);
+                                }}
+                                className="text-blue-600 hover:text-blue-900 flex items-center space-x-1"
+                              >
                                 <Eye className="w-4 h-4" />
                                 <span>{t.view}</span>
                               </button>
@@ -527,7 +689,13 @@ const ReportsComponent = ({ currentUser, language = 'en' }) => {
                               <Download className="w-4 h-4 mr-1" />
                               {t.download}
                             </button>
-                            <button className="text-blue-600 hover:text-blue-900 text-sm flex items-center">
+                            <button
+                               onClick={() => {
+                                  setViewedReport(report);
+                                  setShowViewModal(true);
+                                }}
+                              className="text-blue-600 hover:text-blue-900 text-sm flex items-center"
+                            >
                               <Eye className="w-4 h-4 mr-1" />
                               {t.view}
                             </button>
@@ -603,9 +771,17 @@ const ReportsComponent = ({ currentUser, language = 'en' }) => {
 
       {/* Generate Report Modal */}
       {showGenerateModal && <GenerateReportModal />}
+
+      {/* New Report Details Modal */}
+      {showViewModal && (
+        <ReportDetailsModal
+          report={viewedReport}
+          onClose={() => setShowViewModal(false)}
+          t={t}
+        />
+      )}
     </div>
   );
 };
 
 export default ReportsComponent;
-              

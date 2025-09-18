@@ -29,7 +29,7 @@ const Sidebar = () => {
     { path: "/add-treatment", icon: Plus, label: t.addTreatment },
     { path: "/chat", icon: MessageCircle, label: t.chat },
     { path: "/analytics", icon: BarChart3, label: t.analytics },
-    { path: "/reports", icon: Download, label: t.reports },
+    // { path: "/reports", icon: Download, label: t.reports },
   ];
 
   const governmentMenuItems = [

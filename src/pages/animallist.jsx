@@ -9,7 +9,11 @@ import {
   History,
   Download,
   AlertTriangle,
-  Stethoscope
+  Stethoscope,
+  Calendar,
+  X,
+  Pill,
+  User
 } from 'lucide-react';
 
 // Mock animals data
@@ -72,6 +76,106 @@ const mockAnimals = [
   }
 ];
 
+// Mock treatment history data
+const mockTreatmentHistory = {
+  'COW001': [
+    {
+      id: 'T001',
+      date: '2024-08-25',
+      drug: 'Amoxicillin',
+      dose: '500mg',
+      condition: 'Mastitis',
+      veterinarian: 'Dr. Sharma',
+      waitingPeriod: 7,
+      status: 'Active',
+      notes: 'Bacterial infection in udder, responded well to treatment'
+    },
+    {
+      id: 'T002',
+      date: '2024-07-15',
+      drug: 'Penicillin',
+      dose: '300mg',
+      condition: 'Respiratory Infection',
+      veterinarian: 'Dr. Verma',
+      waitingPeriod: 5,
+      status: 'Completed',
+      notes: 'Minor respiratory issues, full recovery achieved'
+    },
+    {
+      id: 'T003',
+      date: '2024-06-10',
+      drug: 'Oxytetracycline',
+      dose: '400ml',
+      condition: 'Skin Infection',
+      veterinarian: 'Dr. Sharma',
+      waitingPeriod: 12,
+      status: 'Completed',
+      notes: 'Localized skin infection, healed completely'
+    }
+  ],
+  'BUF002': [
+    {
+      id: 'T004',
+      date: '2024-08-15',
+      drug: 'Oxytetracycline',
+      dose: '200ml',
+      condition: 'Digestive Issues',
+      veterinarian: 'Dr. Verma',
+      waitingPeriod: 14,
+      status: 'Completed',
+      notes: 'Digestive problems resolved with treatment'
+    },
+    {
+      id: 'T005',
+      date: '2024-05-20',
+      drug: 'Enrofloxacin',
+      dose: '150mg',
+      condition: 'Foot Infection',
+      veterinarian: 'Dr. Sharma',
+      waitingPeriod: 8,
+      status: 'Completed',
+      notes: 'Foot infection treated successfully'
+    }
+  ],
+  'CHK003': [
+    {
+      id: 'T006',
+      date: '2024-08-27',
+      drug: 'Enrofloxacin',
+      dose: '10mg',
+      condition: 'Respiratory Issues',
+      veterinarian: 'Dr. Sharma',
+      waitingPeriod: 5,
+      status: 'Active',
+      notes: 'Treating respiratory infection in poultry'
+    }
+  ],
+  'GOT004': [
+    {
+      id: 'T007',
+      date: '2024-08-24',
+      drug: 'Penicillin',
+      dose: '100ml',
+      condition: 'Wound Treatment',
+      veterinarian: 'Dr. Verma',
+      waitingPeriod: 10,
+      status: 'Active',
+      notes: 'Treating minor wound, healing progress good'
+    },
+    {
+      id: 'T008',
+      date: '2024-07-05',
+      drug: 'Amoxicillin',
+      dose: '200mg',
+      condition: 'General Infection',
+      veterinarian: 'Dr. Sharma',
+      waitingPeriod: 7,
+      status: 'Completed',
+      notes: 'General bacterial infection treated successfully'
+    }
+  ]
+};
+
 const AnimalsList = ({ currentUser, setCurrentPage, language = 'en' }) => {
   const [animals] = useState(mockAnimals);
   const [searchTerm, setSearchTerm] = useState('');
@@ -79,6 +183,8 @@ const AnimalsList = ({ currentUser, setCurrentPage, language = 'en' }) => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedAnimal, setSelectedAnimal] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [selectedAnimalHistory, setSelectedAnimalHistory] = useState(null);
 
   // Language translations
   const translations = {
@@ -103,6 +209,7 @@ const AnimalsList = ({ currentUser, setCurrentPage, language = 'en' }) => {
       safeToSell: 'Safe to sell',
       activeWaiting: 'Active waiting',
       animalDetails: 'Animal Details',
+      treatmentHistory: 'Treatment History',
       close: 'Close',
       downloadReport: 'Download Report',
       weight: 'Weight',
@@ -110,7 +217,15 @@ const AnimalsList = ({ currentUser, setCurrentPage, language = 'en' }) => {
       lastTreated: 'Last Treated',
       waitingPeriod: 'Waiting Period',
       farmer: 'Farmer',
-      noAnimalsFound: 'No animals found matching your criteria'
+      noAnimalsFound: 'No animals found matching your criteria',
+      noHistoryFound: 'No treatment history found for this animal',
+      condition: 'Condition',
+      dose: 'Dose',
+      notes: 'Notes',
+      active: 'Active',
+      completed: 'Completed',
+      treatmentDate: 'Treatment Date',
+      veterinarian: 'Veterinarian'
     },
     hi: {
       animals: 'पशु',
@@ -118,7 +233,9 @@ const AnimalsList = ({ currentUser, setCurrentPage, language = 'en' }) => {
       searchAnimals: 'पशु खोजें...',
       allTypes: 'सभी प्रकार',
       view: 'देखें',
-      history: 'इतिहास'
+      history: 'इतिहास',
+      treatmentHistory: 'उपचार इतिहास',
+      close: 'बंद करें'
     },
     mr: {
       animals: 'जनावरे',
@@ -126,7 +243,9 @@ const AnimalsList = ({ currentUser, setCurrentPage, language = 'en' }) => {
       searchAnimals: 'जनावरे शोधा...',
       allTypes: 'सर्व प्रकार',
       view: 'पहा',
-      history: 'इतिहास'
+      history: 'इतिहास',
+      treatmentHistory: 'उपचार इतिहास',
+      close: 'बंद करा'
     }
   };
 
@@ -182,6 +301,20 @@ const AnimalsList = ({ currentUser, setCurrentPage, language = 'en' }) => {
     }
   };
 
+  // Handle history button click
+  const handleHistoryClick = (animal) => {
+    setSelectedAnimalHistory({
+      animal: animal,
+      history: mockTreatmentHistory[animal.id] || []
+    });
+    setShowHistory(true);
+  };
+
+  // Get treatment status color
+  const getStatusColor = (status) => {
+    return status === 'Active' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800';
+  };
+
   // Animal Details Modal
   const AnimalDetailsModal = ({ animal, onClose }) => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -193,7 +326,7 @@ const AnimalsList = ({ currentUser, setCurrentPage, language = 'en' }) => {
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 transition-colors"
             >
-              ✕
+              <X className="w-5 h-5" />
             </button>
           </div>
 
@@ -262,6 +395,114 @@ const AnimalsList = ({ currentUser, setCurrentPage, language = 'en' }) => {
               })()}
             </div>
           </div>
+
+          <div className="mt-6 flex justify-end space-x-3">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
+            >
+              {t.close}
+            </button>
+            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center space-x-2">
+              <Download className="w-4 h-4" />
+              <span>{t.downloadReport}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Treatment History Modal
+  const TreatmentHistoryModal = ({ animalData, onClose }) => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6">
+          <div className="flex justify-between items-start mb-6">
+            <div className="flex items-center space-x-4">
+              <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${getAnimalTypeColor(animalData.animal.type)}`}>
+                <Stethoscope className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">{t.treatmentHistory}</h3>
+                <p className="text-gray-600">{animalData.animal.name} ({animalData.animal.type} - {animalData.animal.id})</p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {animalData.history.length > 0 ? (
+            <div className="space-y-4">
+              {animalData.history.map((treatment, index) => (
+                <div key={treatment.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <Pill className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">{treatment.condition}</h4>
+                        <div className="flex items-center space-x-2 text-sm text-gray-600">
+                          <Calendar className="w-4 h-4" />
+                          <span>{treatment.date}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(treatment.status)}`}>
+                      {treatment.status}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <div className="flex items-center space-x-2 text-sm">
+                        <Pill className="w-4 h-4 text-gray-500" />
+                        <span className="text-gray-600">Drug:</span>
+                        <span className="font-medium text-gray-900">{treatment.drug}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex items-center space-x-2 text-sm">
+                        <span className="text-gray-600">{t.dose}:</span>
+                        <span className="font-medium text-gray-900">{treatment.dose}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex items-center space-x-2 text-sm">
+                        <User className="w-4 h-4 text-gray-500" />
+                        <span className="text-gray-600">{t.veterinarian}:</span>
+                        <span className="font-medium text-gray-900">{treatment.veterinarian}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex items-center space-x-2 text-sm">
+                        <Clock className="w-4 h-4 text-gray-500" />
+                        <span className="text-gray-600">{t.waitingPeriod}:</span>
+                        <span className="font-medium text-gray-900">{treatment.waitingPeriod} days</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {treatment.notes && (
+                    <div className="border-t border-gray-200 pt-4">
+                      <p className="text-sm font-medium text-gray-700 mb-1">{t.notes}:</p>
+                      <p className="text-sm text-gray-600">{treatment.notes}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <History className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500 text-lg">{t.noHistoryFound}</p>
+            </div>
+          )}
 
           <div className="mt-6 flex justify-end space-x-3">
             <button
@@ -418,7 +659,10 @@ const AnimalsList = ({ currentUser, setCurrentPage, language = 'en' }) => {
                                 <Eye className="w-4 h-4" />
                                 <span>{t.view}</span>
                               </button>
-                              <button className="text-blue-600 hover:text-blue-900 flex items-center space-x-1">
+                              <button 
+                                onClick={() => handleHistoryClick(animal)}
+                                className="text-blue-600 hover:text-blue-900 flex items-center space-x-1"
+                              >
                                 <History className="w-4 h-4" />
                                 <span>{t.history}</span>
                               </button>
@@ -479,7 +723,10 @@ const AnimalsList = ({ currentUser, setCurrentPage, language = 'en' }) => {
                               <Eye className="w-4 h-4 mr-1" />
                               {t.view}
                             </button>
-                            <button className="text-blue-600 hover:text-blue-900 text-sm flex items-center">
+                            <button 
+                              onClick={() => handleHistoryClick(animal)}
+                              className="text-blue-600 hover:text-blue-900 text-sm flex items-center"
+                            >
                               <History className="w-4 h-4 mr-1" />
                               {t.history}
                             </button>
@@ -507,6 +754,17 @@ const AnimalsList = ({ currentUser, setCurrentPage, language = 'en' }) => {
           onClose={() => {
             setShowDetails(false);
             setSelectedAnimal(null);
+          }}
+        />
+      )}
+
+      {/* Treatment History Modal */}
+      {showHistory && selectedAnimalHistory && (
+        <TreatmentHistoryModal
+          animalData={selectedAnimalHistory}
+          onClose={() => {
+            setShowHistory(false);
+            setSelectedAnimalHistory(null);
           }}
         />
       )}

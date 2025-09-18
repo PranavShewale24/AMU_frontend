@@ -14,13 +14,14 @@ import {
 
 // Mock analytics data
 const mockAnalytics = {
+  // Updated mock data to include successful and unsuccessful counts
   drugUsage: [
-    { name: 'Amoxicillin', count: 45, percentage: 25 },
-    { name: 'Oxytetracycline', count: 38, percentage: 21 },
-    { name: 'Penicillin', count: 32, percentage: 18 },
-    { name: 'Enrofloxacin', count: 28, percentage: 16 },
-    { name: 'Ceftriaxone', count: 22, percentage: 12 },
-    { name: 'Others', count: 15, percentage: 8 }
+    { name: 'Amoxicillin', successful: 38, unsuccessful: 7, total: 45 },
+    { name: 'Oxytetracycline', successful: 30, unsuccessful: 8, total: 38 },
+    { name: 'Penicillin', successful: 28, unsuccessful: 4, total: 32 },
+    { name: 'Enrofloxacin', successful: 25, unsuccessful: 3, total: 28 },
+    { name: 'Ceftriaxone', successful: 18, unsuccessful: 4, total: 22 },
+    { name: 'Others', successful: 10, unsuccessful: 5, total: 15 }
   ],
   animalTypes: [
     { type: 'Cow', count: 85, treatments: 120 },
@@ -91,21 +92,27 @@ const AnalyticsComponent = ({ currentUser, language = 'en' }) => {
       stable: 'Stable',
       viewDetails: 'View Details',
       exportData: 'Export Data',
-      refresh: 'Refresh'
+      refresh: 'Refresh',
+      successful: 'Successful',
+      unsuccessful: 'Unsuccessful'
     },
     hi: {
       analytics: 'विश्लेषण',
       period: 'अवधि',
       treatments: 'उपचार',
       animals: 'पशु',
-      farmer: 'किसान'
+      farmer: 'किसान',
+      successful: 'सफल',
+      unsuccessful: 'असफल'
     },
     mr: {
       analytics: 'विश्लेषण',
       period: 'कालावधी',
       treatments: 'उपचार',
       animals: 'जनावरे',
-      farmer: 'शेतकरी'
+      farmer: 'शेतकरी',
+      successful: 'यशस्वी',
+      unsuccessful: 'अयशस्वी'
     }
   };
 
@@ -129,53 +136,62 @@ const AnalyticsComponent = ({ currentUser, language = 'en' }) => {
     }
   };
 
-  // Simple Bar Chart Component
-  const BarChart = ({ data, title, keyName, valueName, color = 'bg-green-500' }) => (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">{title}</h3>
-      <div className="space-y-3">
-        {data.map((item, index) => {
-          const maxValue = Math.max(...data.map(d => d[valueName]));
-          const percentage = (item[valueName] / maxValue) * 100;
-          
-          return (
-            <div key={index} className="flex items-center">
-              <div className="w-20 text-sm text-gray-600 truncate mr-3">
-                {item[keyName]}
-              </div>
-              <div className="flex-1 bg-gray-200 rounded-full h-6 relative">
-                <div 
-                  className={`h-full rounded-full ${color} transition-all duration-500`}
-                  style={{ width: `${percentage}%` }}
-                ></div>
-                <span className="absolute inset-0 flex items-center justify-center text-xs font-medium text-gray-700">
-                  {item[valueName]}
-                </span>
+  // Updated Bar Chart Component for side-by-side bars
+  const BarChart = ({ data, title, keyName, successfulKey, unsuccessfulKey, valueName }) => {
+    const maxValue = Math.max(...data.map(d => d[valueName]));
+
+    return (
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">{title}</h3>
+        <div className="space-y-6">
+          {data.map((item, index) => (
+            <div key={index}>
+              <div className="text-sm font-medium text-gray-800 mb-2">{item[keyName]}</div>
+              <div className="flex items-center space-x-2">
+                <div className="flex-1">
+                  <div className="text-xs text-gray-600 mb-1">{t.successful} ({item[successfulKey]})</div>
+                  <div className="bg-gray-200 h-6 rounded-full overflow-hidden">
+                    <div 
+                      className="bg-green-500 h-full transition-all duration-500"
+                      style={{ width: `${(item[successfulKey] / maxValue) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <div className="text-xs text-gray-600 mb-1">{t.unsuccessful} ({item[unsuccessfulKey]})</div>
+                  <div className="bg-gray-200 h-6 rounded-full overflow-hidden">
+                    <div 
+                      className="bg-red-500 h-full transition-all duration-500"
+                      style={{ width: `${(item[unsuccessfulKey] / maxValue) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
               </div>
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
-  // Line Chart Component (simplified)
-  const LineChart = ({ data, title }) => (
+
+  // Reusable bar chart for a single value
+  const SimpleBarChart = ({ data, title, keyName, valueName, color = 'bg-green-500' }) => (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
       <h3 className="text-lg font-semibold text-gray-800 mb-4">{title}</h3>
-      <div className="flex items-end space-x-2 h-40">
+      <div className="flex items-end space-x-4 **h-60**">
         {data.map((item, index) => {
-          const maxValue = Math.max(...data.map(d => d.treatments));
-          const height = (item.treatments / maxValue) * 100;
+          const maxValue = Math.max(...data.map(d => d[valueName]));
+          const height = (item[valueName] / maxValue) * 100;
           
           return (
             <div key={index} className="flex flex-col items-center flex-1">
               <div 
-                className="w-full bg-green-500 rounded-t transition-all duration-500 hover:bg-green-600"
+                className={`w-full ${color} rounded-t transition-all duration-500 hover:opacity-80`}
                 style={{ height: `${height}%`, minHeight: '8px' }}
               ></div>
-              <div className="mt-2 text-xs text-gray-600">{item.month}</div>
-              <div className="text-xs font-medium text-gray-800">{item.treatments}</div>
+              <div className="mt-2 text-xs text-gray-600">{item[keyName]}</div>
+              <div className="text-xs font-medium text-gray-800">{item[valueName]}</div>
             </div>
           );
         })}
@@ -275,25 +291,48 @@ const AnalyticsComponent = ({ currentUser, language = 'en' }) => {
           data={mockAnalytics.drugUsage}
           title={t.drugUsageFrequency}
           keyName="name"
-          valueName="count"
-          color="bg-green-500"
+          valueName="total"
+          successfulKey="successful"
+          unsuccessfulKey="unsuccessful"
         />
 
         {/* Animal Types Chart */}
-        <BarChart 
-          data={mockAnalytics.animalTypes}
-          title={t.animalTypeDistribution}
-          keyName="type"
-          valueName="count"
-          color="bg-blue-500"
-        />
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.animalTypeDistribution}</h3>
+          <div className="space-y-3">
+            {mockAnalytics.animalTypes.map((item, index) => {
+              const maxValue = Math.max(...mockAnalytics.animalTypes.map(d => d.count));
+              const percentage = (item.count / maxValue) * 100;
+              
+              return (
+                <div key={index} className="flex items-center">
+                  <div className="w-20 text-sm text-gray-600 truncate mr-3">
+                    {item.type}
+                  </div>
+                  <div className="flex-1 bg-gray-200 rounded-full h-6 relative">
+                    <div 
+                      className={`h-full rounded-full bg-blue-500 transition-all duration-500`}
+                      style={{ width: `${percentage}%` }}
+                    ></div>
+                    <span className="absolute inset-0 flex items-center justify-center text-xs font-medium text-gray-700">
+                      {item.count}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
-      {/* Monthly Trends */}
+      {/* Monthly Trends - Updated to use SimpleBarChart */}
       <div className="mb-8">
-        <LineChart 
+        <SimpleBarChart 
           data={mockAnalytics.monthlyTreatments}
           title={t.monthlyTreatmentTrends}
+          keyName="month"
+          valueName="treatments"
+          color="bg-green-500"
         />
       </div>
 

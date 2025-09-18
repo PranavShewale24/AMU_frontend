@@ -92,7 +92,7 @@ const Login = () => {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 placeholder="Enter Password"
               />
-              <p className="text-sm text-gray-500 mt-1">Demo password: 1234</p>
+             
             </div>
           )}
 
